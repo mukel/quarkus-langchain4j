@@ -46,7 +46,9 @@ This extension requires *Java 25 or later*.
 === Vector API
 
 jinfer uses the https://openjdk.org/jeps/508[Java Vector API], an incubator module that must be enabled when the JVM starts.
-*Dev mode and continuous testing* enable it for you. Everywhere else, add the flag once:
+*Dev mode, continuous testing and `@QuarkusTest`* enable it for you.
+`@QuarkusTest` needs the `<argLine>@\{argLine}</argLine>` that Quarkus 4 puts in `maven-surefire-plugin` of new Maven projects; with Gradle, or a POM without it, add `--add-modules jdk.incubator.vector` to the test JVM.
+Everywhere else, add the flag once:
 
 [cols="1,3"]
 |===
@@ -54,9 +56,6 @@ jinfer uses the https://openjdk.org/jeps/508[Java Vector API], an incubator modu
 
 |Production jar
 |`java --add-modules jdk.incubator.vector -jar quarkus-run.jar`
-
-|`@QuarkusTest`
-|`<argLine>--add-modules jdk.incubator.vector</argLine>` in `maven-surefire-plugin`
 
 |`@QuarkusIntegrationTest`
 |`quarkus.test.arg-line=--add-modules=jdk.incubator.vector`
