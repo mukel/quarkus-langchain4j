@@ -1,6 +1,6 @@
 name: LangChain4j Jinfer
 artifact: ${project.groupId}:${project.artifactId}:${project.version}
-description: In-process LLM inference on the JVM via Qxotic jinfer, integrated with LangChain4j
+description: Run LLMs in-process on the JVM with Qxotic jinfer
 metadata:
   keywords:
     - ai
@@ -8,6 +8,7 @@ metadata:
     - jinfer
     - qxotic
     - llm
+  guide: "https://docs.quarkiverse.io/quarkus-langchain4j/dev/jinfer.html"
   categories:
     - "ai"
   status: "preview"

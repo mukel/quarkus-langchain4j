@@ -11,11 +11,17 @@ import java.util.List;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
 
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.AnnotationValue;
+import org.jboss.jandex.ClassType;
+import org.jboss.jandex.DotName;
+import org.jboss.jandex.ParameterizedType;
+import org.jboss.jandex.Type;
 
 import io.quarkiverse.langchain4j.ModelName;
+import io.quarkiverse.langchain4j.deployment.DotNames;
 import io.quarkiverse.langchain4j.deployment.items.AudioTranscriptionModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.ChatModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.EmbeddingModelProviderCandidateBuildItem;
@@ -36,7 +42,7 @@ import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.ModuleEnableNativeAccessBuildItem;
 import io.quarkus.deployment.builditem.ShutdownContextBuildItem;
-import io.quarkus.deployment.builditem.nativeimage.NativeImageEnableModule;
+import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 
 public class JinferProcessor {
 
@@ -46,17 +52,20 @@ public class JinferProcessor {
     // Automatic-Module-Name of the jinfer integration jar; used to request native access.
     private static final String JINFER_MODULE = "com.qxotic.jinfer.langchain4j";
 
+    private static final List<String> JINFER_SERVICES = List.of(
+            "com.qxotic.jam.JAM$Provider",
+            "com.qxotic.jinfer.chat.ModelProvider",
+            "com.qxotic.jinfer.fetch.Transport",
+            "com.qxotic.jinfer.hub.Console");
+
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
     }
 
     /**
-     * jinfer uses the Foreign Function & Memory API. Requesting native access writes
-     * {@code Enable-Native-Access: ALL-UNNAMED} into the production jar manifest so
-     * {@code java -jar quarkus-run.jar} needs no extra flag for native access. (The incubator
-     * Vector API still requires {@code --add-modules jdk.incubator.vector} at launch; that cannot
-     * be expressed in the jar manifest and is documented instead.)
+     * Writes {@code Enable-Native-Access} into the production jar manifest. The Vector API flag cannot
+     * be expressed there, so the recorder checks it at startup.
      */
     @BuildStep
     ModuleEnableNativeAccessBuildItem enableNativeAccess() {
@@ -64,11 +73,14 @@ public class JinferProcessor {
     }
 
     /**
-     * For native image builds, add the incubator Vector API module so the native compiler can see it.
+     * Native images only keep registered service providers. Without these, jinfer silently loses its
+     * fast kernels.
      */
     @BuildStep
-    NativeImageEnableModule enableVectorApiForNative() {
-        return new NativeImageEnableModule("jdk.incubator.vector");
+    void registerServiceProviders(BuildProducer<ServiceProviderBuildItem> serviceProviders) {
+        for (String service : JINFER_SERVICES) {
+            serviceProviders.produce(ServiceProviderBuildItem.allProvidersFromClassPath(service));
+        }
     }
 
     @BuildStep
@@ -77,16 +89,16 @@ public class JinferProcessor {
             BuildProducer<ScoringModelProviderCandidateBuildItem> scoringProducer,
             BuildProducer<AudioTranscriptionModelProviderCandidateBuildItem> transcriptionProducer,
             LangChain4jJinferBuildConfig config) {
-        if (config.chatModel().enabled().isEmpty() || config.chatModel().enabled().get()) {
+        if (config.chatModel().enabled().orElse(true)) {
             chatProducer.produce(new ChatModelProviderCandidateBuildItem(PROVIDER));
         }
-        if (config.embeddingModel().enabled().isEmpty() || config.embeddingModel().enabled().get()) {
+        if (config.embeddingModel().enabled().orElse(true)) {
             embeddingProducer.produce(new EmbeddingModelProviderCandidateBuildItem(PROVIDER));
         }
-        if (config.scoringModel().enabled().isEmpty() || config.scoringModel().enabled().get()) {
+        if (config.scoringModel().enabled().orElse(true)) {
             scoringProducer.produce(new ScoringModelProviderCandidateBuildItem(PROVIDER));
         }
-        if (config.transcriptionModel().enabled().isEmpty() || config.transcriptionModel().enabled().get()) {
+        if (config.transcriptionModel().enabled().orElse(true)) {
             transcriptionProducer.produce(new AudioTranscriptionModelProviderCandidateBuildItem(PROVIDER));
         }
     }
@@ -103,26 +115,13 @@ public class JinferProcessor {
             List<SelectedChatModelProviderBuildItem> selectedChatModels,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedChatModels) {
-            if (!PROVIDER.equals(selected.getProvider())) {
-                continue;
+            if (PROVIDER.equals(selected.getProvider())) {
+                String configName = selected.getConfigName();
+                beanProducer.produce(chatBean(CHAT_MODEL, configName).createWith(recorder.chatModel(configName)).done());
+                beanProducer.produce(chatBean(STREAMING_CHAT_MODEL, configName)
+                        .createWith(recorder.streamingChatModel(configName))
+                        .done());
             }
-            String configName = selected.getConfigName();
-
-            var chat = SyntheticBeanBuildItem.configure(CHAT_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.chatModel(configName));
-            addQualifierIfNecessary(chat, configName);
-            beanProducer.produce(chat.done());
-
-            var streaming = SyntheticBeanBuildItem.configure(STREAMING_CHAT_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.streamingChatModel(configName));
-            addQualifierIfNecessary(streaming, configName);
-            beanProducer.produce(streaming.done());
         }
     }
 
@@ -132,18 +131,12 @@ public class JinferProcessor {
             List<SelectedEmbeddingModelCandidateBuildItem> selectedEmbeddingModels,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedEmbeddingModels) {
-            if (!PROVIDER.equals(selected.getProvider())) {
-                continue;
+            if (PROVIDER.equals(selected.getProvider())) {
+                beanProducer.produce(modelBean(EMBEDDING_MODEL, selected.getConfigName())
+                        .unremovable()
+                        .supplier(recorder.embeddingModel(selected.getConfigName()))
+                        .done());
             }
-            String configName = selected.getConfigName();
-            var embedding = SyntheticBeanBuildItem.configure(EMBEDDING_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
-                    .unremovable()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.embeddingModel(configName));
-            addQualifierIfNecessary(embedding, configName);
-            beanProducer.produce(embedding.done());
         }
     }
 
@@ -153,18 +146,12 @@ public class JinferProcessor {
             List<SelectedScoringModelProviderBuildItem> selectedScoringModels,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedScoringModels) {
-            if (!PROVIDER.equals(selected.getProvider())) {
-                continue;
+            if (PROVIDER.equals(selected.getProvider())) {
+                beanProducer.produce(modelBean(SCORING_MODEL, selected.getConfigName())
+                        .unremovable()
+                        .supplier(recorder.scoringModel(selected.getConfigName()))
+                        .done());
             }
-            String configName = selected.getConfigName();
-            var scoring = SyntheticBeanBuildItem.configure(SCORING_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
-                    .unremovable()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.scoringModel(configName));
-            addQualifierIfNecessary(scoring, configName);
-            beanProducer.produce(scoring.done());
         }
     }
 
@@ -174,18 +161,12 @@ public class JinferProcessor {
             List<SelectedAudioTranscriptionModelProviderBuildItem> selectedTranscriptionModels,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedTranscriptionModels) {
-            if (!PROVIDER.equals(selected.getProvider())) {
-                continue;
+            if (PROVIDER.equals(selected.getProvider())) {
+                beanProducer.produce(modelBean(AUDIO_TRANSCRIPTION_MODEL, selected.getConfigName())
+                        .unremovable()
+                        .supplier(recorder.transcriptionModel(selected.getConfigName()))
+                        .done());
             }
-            String configName = selected.getConfigName();
-            var transcription = SyntheticBeanBuildItem.configure(AUDIO_TRANSCRIPTION_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
-                    .unremovable()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.transcriptionModel(configName));
-            addQualifierIfNecessary(transcription, configName);
-            beanProducer.produce(transcription.done());
         }
     }
 
@@ -200,7 +181,7 @@ public class JinferProcessor {
             BeanDiscoveryFinishedBuildItem beanDiscovery,
             LangChain4jJinferBuildConfig config,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
-        if (config.ttsModel().enabled().isPresent() && !config.ttsModel().enabled().get()) {
+        if (!config.ttsModel().enabled().orElse(true)) {
             return;
         }
         Set<String> ttsNames = new LinkedHashSet<>();
@@ -214,15 +195,38 @@ public class JinferProcessor {
             }
         }
         for (String configName : ttsNames) {
-            var tts = SyntheticBeanBuildItem.configure(JinferDotNames.TEXT_TO_SPEECH_MODEL)
-                    .setRuntimeInit()
-                    .defaultBean()
+            beanProducer.produce(modelBean(JinferDotNames.TEXT_TO_SPEECH_MODEL, configName)
                     .unremovable()
-                    .scope(ApplicationScoped.class)
-                    .supplier(recorder.ttsModel(configName));
-            addQualifierIfNecessary(tts, configName);
-            beanProducer.produce(tts.done());
+                    .supplier(recorder.ttsModel(configName))
+                    .done());
         }
+    }
+
+    private static SyntheticBeanBuildItem.ExtendedBeanConfigurator chatBean(DotName type, String configName) {
+        return modelBean(type, configName)
+                .addInjectionPoint(instanceOf(ClassType.create(DotNames.CHAT_MODEL_LISTENER)))
+                .addInjectionPoint(customizers(JinferDotNames.CHAT_MODEL_BUILDER),
+                        AnnotationInstance.builder(Any.class).build());
+    }
+
+    private static SyntheticBeanBuildItem.ExtendedBeanConfigurator modelBean(DotName type, String configName) {
+        var bean = SyntheticBeanBuildItem.configure(type)
+                .setRuntimeInit()
+                .defaultBean()
+                .scope(ApplicationScoped.class);
+        if (!NamedConfigUtil.isDefault(configName)) {
+            bean.addQualifier(AnnotationInstance.builder(ModelName.class).add("value", configName).build());
+        }
+        return bean;
+    }
+
+    private static Type customizers(DotName builder) {
+        return instanceOf(ParameterizedType.create(DotNames.MODEL_BUILDER_CUSTOMIZER,
+                new Type[] { ClassType.create(builder) }, null));
+    }
+
+    private static Type instanceOf(Type type) {
+        return ParameterizedType.create(DotNames.CDI_INSTANCE, new Type[] { type }, null);
     }
 
     private static String determineModelName(InjectionPointInfo ip) {
@@ -237,11 +241,5 @@ public class JinferProcessor {
             return null;
         }
         return NamedConfigUtil.DEFAULT_NAME;
-    }
-
-    static void addQualifierIfNecessary(SyntheticBeanBuildItem.ExtendedBeanConfigurator builder, String configName) {
-        if (!NamedConfigUtil.isDefault(configName)) {
-            builder.addQualifier(AnnotationInstance.builder(ModelName.class).add("value", configName).build());
-        }
     }
 }

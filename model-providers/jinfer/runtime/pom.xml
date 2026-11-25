@@ -28,6 +28,11 @@
         </dependency>
         <dependency>
             <groupId>com.qxotic</groupId>
+            <artifactId>jam-native</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.qxotic</groupId>
             <artifactId>jam-vector</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -62,6 +67,9 @@
                                     <add-modules>jdk.incubator.vector</add-modules>
                                     <enable-native-access>ALL-UNNAMED</enable-native-access>
                                 </jvmOptions>
+                                <lockXxJvmOptions>
+                                    <option>TieredStopAtLevel</option>
+                                </lockXxJvmOptions>
                             </devMode>
                         </configuration>
                     </execution>

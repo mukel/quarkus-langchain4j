@@ -7,31 +7,72 @@ include::./includes/customization.adoc[]
 https://qxotic.ai/[Qxotic] provides *jinfer*, an engine that runs Large Language Models (LLMs) *locally and purely in Java*, embedded in your Quarkus application.
 This extension integrates jinfer's LangChain4j support, exposing chat, streaming chat, embedding, scoring (rerank), audio transcription, and text-to-speech models backed by in-process GGUF inference.
 
+== Quick start
+
+Add the extension and choose a model:
+
+[source,xml,subs=attributes+]
+----
+<dependency>
+    <groupId>io.quarkiverse.langchain4j</groupId>
+    <artifactId>quarkus-langchain4j-jinfer</artifactId>
+    <version>{project-version}</version>
+</dependency>
+----
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
+----
+
+Then define an AI service and start `quarkus dev`. The model is downloaded on first use:
+
+[source,java]
+----
+@RegisterAiService
+public interface Assistant {
+    String chat(String message);
+}
+----
+
 [#_prerequisites]
 == Prerequisites
 
 === Java 25
 
-jinfer requires *Java 25 or later*. The extension is only built and active on JDK 25+.
+This extension requires *Java 25 or later*.
 
-=== Vector API and native access
+[#_vector_api]
+=== Vector API
 
-jinfer uses the https://openjdk.org/jeps/508[Java Vector API] (incubator) and the Foreign Function & Memory API. The required JVM flags are:
+jinfer uses the https://openjdk.org/jeps/508[Java Vector API], an incubator module that must be enabled when the JVM starts.
+*Dev mode and continuous testing* enable it for you. Everywhere else, add the flag once:
 
-[source,shell]
-----
---add-modules jdk.incubator.vector --enable-native-access=ALL-UNNAMED
-----
+[cols="1,3"]
+|===
+|Where |How
 
-* In *dev mode* and *continuous testing*, the extension passes these flags automatically.
-* In a *production jar*, `--enable-native-access=ALL-UNNAMED` is written into the runnable jar manifest automatically, but `--add-modules jdk.incubator.vector` *cannot* be expressed in a manifest (a JDK limitation). You must pass it yourself:
-+
-[source,shell]
-----
-java --add-modules jdk.incubator.vector -jar quarkus-run.jar
-----
-+
-or via the `JAVA_OPTS_APPEND` environment variable (honored by the Quarkus container images). The `jdk.incubator.vector` module is *required*: if it is absent, creating a model fails fast at startup with a clear error (`jinfer needs the Vector API: start the JVM with --add-modules jdk.incubator.vector`).
+|Production jar
+|`java --add-modules jdk.incubator.vector -jar quarkus-run.jar`
+
+|`@QuarkusTest`
+|`<argLine>--add-modules jdk.incubator.vector</argLine>` in `maven-surefire-plugin`
+
+|`@QuarkusIntegrationTest`
+|`quarkus.test.arg-line=--add-modules=jdk.incubator.vector`
+
+|Jib container image
+|`quarkus.jib.jvm-additional-arguments=--add-modules=jdk.incubator.vector`
+
+|Your own Dockerfile
+|Add it to `JAVA_OPTS_APPEND`, keeping the options already there
+
+|AOT cache
+|`quarkus.package.jar.aot.additional-recording-args=--add-modules=jdk.incubator.vector`
+|===
+
+Native executables need no flag.
+When a model is enabled and the flag is missing, the application fails at startup and names it.
 
 == Configuration
 
@@ -39,17 +80,51 @@ Models are selected with a HuggingFace/ModelScope GGUF reference (for example `o
 
 [source,properties]
 ----
-quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-8B-A1B-GGUF:Q8_0
-quarkus.langchain4j.jinfer.embedding-model.model=Qwen/Qwen3-Embedding-0.6B-GGUF:Q8_0
+quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
+quarkus.langchain4j.jinfer.embedding-model.model=unsloth/embeddinggemma-2-GGUF:Q8_0
 ----
 
-Models are downloaded by jinfer into its own resumable, sha256-verified cache on first use. Set the `JINFER_OFFLINE=1` environment variable to forbid network access.
+Models, often several GB, are downloaded by jinfer into its own resumable, sha256-verified cache on first use. Set the `JINFER_OFFLINE=1` environment variable to forbid network access.
+An injected model with no `model` or `model-path` fails at startup and names the property.
+A missing model, gated repository or offline miss fails on first use, with a `ModelNotFoundException` naming the reference.
 
-[WARNING]
-====
-Model files are large (often several GB) and may take time to download on first use.
-====
+The native CPU kernels are unpacked once into the user cache directory (`$XDG_CACHE_HOME`, or `~/.cache` on Linux) and reused by every later run.
+In a container with a read-only or missing home directory, point `XDG_CACHE_HOME` at a writable volume; otherwise jinfer prints a warning and falls back to the slower pure-Java kernels.
 
 Set `quarkus.langchain4j.jinfer.enable-integration=false` to disable the models (they then throw when used), which is useful for tests.
+
+=== Timeout
+
+Chat requests have no deadline by default, because local generation time depends on the hardware.
+Set one to stop runaway replies. The global `quarkus.langchain4j.timeout` does not apply, so a limit meant for a remote provider cannot cut local generation:
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.timeout=2m
+----
+
+=== Shorter embeddings
+
+Models trained with Matryoshka representation learning, such as https://huggingface.co/google/embeddinggemma-2[EmbeddingGemma 2], can embed at a smaller width with little loss in quality.
+Set `dimensions` to store shorter vectors:
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.embedding-model.model=unsloth/embeddinggemma-2-GGUF:Q8_0
+quarkus.langchain4j.jinfer.embedding-model.dimensions=256
+----
+
+=== Companion files
+
+Vision and audio input need the model's projector (`mmproj`), and Kokoro needs a voice.
+Set them with `companions`, as a GGUF reference or a local path:
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-VL-450M-GGUF:Q8_0
+quarkus.langchain4j.jinfer.chat-model.companions.media=LiquidAI/LFM2.5-VL-450M-GGUF/mmproj-LFM2.5-VL-450m-Q8_0.gguf
+quarkus.langchain4j.jinfer.tts-model.model=simonfxr/kokoro.cpp-GGUF:Q8_0
+quarkus.langchain4j.jinfer.tts-model.companions.voice=simonfxr/kokoro.cpp-GGUF/voices/kokoro-voice-af_heart.gguf
+----
 
 include::includes/quarkus-langchain4j-jinfer.adoc[leveloffset=+1, opts=optional]

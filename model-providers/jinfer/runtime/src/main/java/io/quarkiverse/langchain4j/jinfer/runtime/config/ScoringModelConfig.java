@@ -21,7 +21,8 @@ public interface ScoringModelConfig {
     Optional<Path> modelPath();
 
     /**
-     * The context window size in tokens.
+     * The context capacity in tokens. {@code 0} is the smaller of 4096 and the model's maximum, {@code -1} is the
+     * model's maximum.
      */
     OptionalInt contextCapacity();
 

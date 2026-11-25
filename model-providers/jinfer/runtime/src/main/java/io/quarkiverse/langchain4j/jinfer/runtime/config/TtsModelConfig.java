@@ -1,10 +1,12 @@
 package io.quarkiverse.langchain4j.jinfer.runtime.config;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.OptionalInt;
 
+import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigGroup;
 
 @ConfigGroup
@@ -30,4 +32,11 @@ public interface TtsModelConfig {
      * The maximum number of input characters.
      */
     OptionalInt maxInputChars();
+
+    /**
+     * Companion files by capability, each a GGUF reference or a local path, such as {@code voice} for the
+     * speaker's voice. A capability the model does not have fails when the model loads.
+     */
+    @ConfigDocMapKey("capability")
+    Map<String, String> companions();
 }

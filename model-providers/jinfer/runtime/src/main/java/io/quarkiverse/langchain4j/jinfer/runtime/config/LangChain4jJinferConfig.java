@@ -2,8 +2,11 @@ package io.quarkiverse.langchain4j.jinfer.runtime.config;
 
 import static io.quarkus.runtime.annotations.ConfigPhase.RUN_TIME;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
+import io.quarkus.runtime.annotations.ConfigDocDefault;
 import io.quarkus.runtime.annotations.ConfigDocMapKey;
 import io.quarkus.runtime.annotations.ConfigDocSection;
 import io.quarkus.runtime.annotations.ConfigRoot;
@@ -39,6 +42,13 @@ public interface LangChain4jJinferConfig {
          */
         @WithDefault("true")
         Boolean enableIntegration();
+
+        /**
+         * The wall-clock deadline of each chat request, streaming included. A reply it cuts fails with
+         * LangChain4j's {@code TimeoutException}.
+         */
+        @ConfigDocDefault("no timeout")
+        Optional<Duration> timeout();
 
         /**
          * Chat model related settings.

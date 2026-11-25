@@ -1525,7 +1525,7 @@ endif::add-copy-button-to-env-var[]
 |
 
 
-h|[.extension-name]##Quarkus LangChain4j - A2A Apicurio Registry - Runtime##
+h|[.extension-name]##Quarkus LangChain4j - A2A Apicurio Registry##
 h|Type
 h|Default
 
@@ -15493,6 +15493,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-timeout]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-timeout[`+++quarkus.langchain4j.jinfer.timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The wall-clock deadline of each chat request, streaming included. A reply it cuts fails with LangChain4j's `TimeoutException`.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-all-config[icon:question-circle[title=More information about the Duration format]]
+|`+++no timeout+++`
+
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-model[`+++quarkus.langchain4j.jinfer.chat-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer.chat-model.model+++[]
@@ -15543,7 +15564,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens. `0` uses the model's full context.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15575,7 +15596,7 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_TEMPERATURE+++`
 endif::add-copy-button-to-env-var[]
 --
 |double
-|`+++${quarkus.langchain4j.temperature:0.7}+++`
+|`+++the model's recommended value+++`
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-top-p]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-top-p[`+++quarkus.langchain4j.jinfer.chat-model.top-p+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -15745,6 +15766,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |
 
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-companions-capability[`+++quarkus.langchain4j.jinfer.chat-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.chat-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-model[`+++quarkus.langchain4j.jinfer.embedding-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer.embedding-model.model+++[]
@@ -15795,7 +15837,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15806,6 +15848,48 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_CONTEXT_CAP
 endif::add-copy-button-to-env-var[]
 --
 |int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-dimensions]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-dimensions[`+++quarkus.langchain4j.jinfer.embedding-model.dimensions+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.embedding-model.dimensions+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The width of the embedding vectors, for models trained with Matryoshka representation learning. When unset, the model's own width is used. A width the model cannot produce fails when the model is created.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_DIMENSIONS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_DIMENSIONS+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-companions-capability[`+++quarkus.langchain4j.jinfer.embedding-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.embedding-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-model[`+++quarkus.langchain4j.jinfer.scoring-model.model+++`]##
@@ -15858,7 +15942,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -16018,6 +16102,27 @@ endif::add-copy-button-to-env-var[]
 |int
 |
 
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-companions-capability[`+++quarkus.langchain4j.jinfer.tts-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.tts-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `voice` for the speaker's voice. A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_TTS_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_TTS_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
 h|[[quarkus-langchain4j-jinfer_section_quarkus-langchain4j-jinfer]] [.section-name.section-level0]##link:#quarkus-langchain4j-jinfer_section_quarkus-langchain4j-jinfer[Named model config]##
 h|Type
 h|Default
@@ -16042,6 +16147,27 @@ endif::add-copy-button-to-env-var[]
 --
 |boolean
 |`+++true+++`
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-timeout]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-timeout[`+++quarkus.langchain4j.jinfer."model-name".timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The wall-clock deadline of each chat request, streaming included. A reply it cuts fails with LangChain4j's `TimeoutException`.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-all-config[icon:question-circle[title=More information about the Duration format]]
+|`+++no timeout+++`
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-model[`+++quarkus.langchain4j.jinfer."model-name".chat-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -16093,7 +16219,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens. `0` uses the model's full context.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -16125,7 +16251,7 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_TEM
 endif::add-copy-button-to-env-var[]
 --
 |double
-|`+++${quarkus.langchain4j.temperature:0.7}+++`
+|`+++the model's recommended value+++`
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-top-p]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-top-p[`+++quarkus.langchain4j.jinfer."model-name".chat-model.top-p+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -16295,6 +16421,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |
 
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-companions-capability[`+++quarkus.langchain4j.jinfer."model-name".chat-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".chat-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-model[`+++quarkus.langchain4j.jinfer."model-name".embedding-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".embedding-model.model+++[]
@@ -16345,7 +16492,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -16356,6 +16503,48 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODE
 endif::add-copy-button-to-env-var[]
 --
 |int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-dimensions]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-dimensions[`+++quarkus.langchain4j.jinfer."model-name".embedding-model.dimensions+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".embedding-model.dimensions+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The width of the embedding vectors, for models trained with Matryoshka representation learning. When unset, the model's own width is used. A width the model cannot produce fails when the model is created.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_DIMENSIONS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_DIMENSIONS+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-companions-capability[`+++quarkus.langchain4j.jinfer."model-name".embedding-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".embedding-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-model[`+++quarkus.langchain4j.jinfer."model-name".scoring-model.model+++`]##
@@ -16408,7 +16597,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The context window size in tokens.
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -16566,6 +16755,27 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_MAX_
 endif::add-copy-button-to-env-var[]
 --
 |int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-companions-capability[`+++quarkus.langchain4j.jinfer."model-name".tts-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".tts-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `voice` for the speaker's voice. A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
 |
 
 
@@ -17243,7 +17453,7 @@ endif::add-copy-button-to-env-var[]
 
 
 
-h|[.extension-name]##Quarkus LangChain4j - MCP Apicurio Registry - Runtime##
+h|[.extension-name]##Quarkus LangChain4j - MCP Apicurio Registry##
 h|Type
 h|Default
 

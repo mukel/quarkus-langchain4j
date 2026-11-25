@@ -1,8 +1,18 @@
 package io.quarkiverse.langchain4j.jinfer.runtime;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
+import jakarta.enterprise.util.TypeLiteral;
+
+import com.qxotic.jinfer.hub.ModelStore;
 import com.qxotic.jinfer.langchain4j.JinferChatModel;
 import com.qxotic.jinfer.langchain4j.JinferEmbeddingModel;
 import com.qxotic.jinfer.langchain4j.JinferScoringModel;
@@ -21,10 +31,12 @@ import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.DisabledChatModel;
 import dev.langchain4j.model.chat.DisabledStreamingChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.chat.listener.ChatModelListener;
 import dev.langchain4j.model.embedding.DisabledEmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
+import io.quarkiverse.langchain4j.ModelBuilderCustomizer;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.ChatModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.EmbeddingModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.LangChain4jJinferConfig;
@@ -32,12 +44,24 @@ import io.quarkiverse.langchain4j.jinfer.runtime.config.ScoringModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.TranscriptionModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.TtsModelConfig;
 import io.quarkiverse.langchain4j.runtime.NamedConfigUtil;
+import io.quarkus.arc.SyntheticCreationalContext;
+import io.quarkus.runtime.ImageMode;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
+import io.quarkus.runtime.configuration.ConfigurationException;
+import io.smallrye.config.ConfigValidationException;
 
 @Recorder
 public class JinferRecorder {
+
+    private static final TypeLiteral<Instance<ChatModelListener>> CHAT_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+    private static final TypeLiteral<Instance<ModelBuilderCustomizer<JinferChatModel.Builder>>> CHAT_MODEL_CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+
+    // Not the JinferModels monitor: a download can take minutes, and shutdown must not wait for it.
+    private static final Object CHAT_LOAD_LOCK = new Object();
 
     private final RuntimeValue<LangChain4jJinferConfig> runtimeConfig;
 
@@ -45,12 +69,7 @@ public class JinferRecorder {
         this.runtimeConfig = runtimeConfig;
     }
 
-    /**
-     * Closes every loaded model once, at application shutdown. jinfer models are {@link AutoCloseable}
-     * and hold large in-memory weights, so they must be released explicitly. The registry is static
-     * (see {@link JinferModels}) because this build step's recorder instance differs from the ones
-     * that created the models.
-     */
+    /** Closes every loaded model once, at application shutdown, releasing their memory-mapped weights. */
     public void closeModelsAtShutdown(ShutdownContext shutdown) {
         shutdown.addLastShutdownTask(new Runnable() {
             @Override
@@ -60,36 +79,41 @@ public class JinferRecorder {
         });
     }
 
-    public Supplier<ChatModel> chatModel(final String configName) {
+    public Function<SyntheticCreationalContext<ChatModel>, ChatModel> chatModel(final String configName) {
         if (!correspondingConfig(configName).enableIntegration()) {
-            return new Supplier<ChatModel>() {
+            return new Function<>() {
                 @Override
-                public ChatModel get() {
+                public ChatModel apply(SyntheticCreationalContext<ChatModel> context) {
                     return new DisabledChatModel();
                 }
             };
         }
-        return new Supplier<ChatModel>() {
+        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+        validate(configName, "chat-model", chat.modelPath(), chat.model());
+        return new Function<>() {
             @Override
-            public ChatModel get() {
-                return getOrCreateChatModel(configName);
+            public ChatModel apply(SyntheticCreationalContext<ChatModel> context) {
+                return getOrCreateChatModel(configName, context);
             }
         };
     }
 
-    public Supplier<StreamingChatModel> streamingChatModel(final String configName) {
+    public Function<SyntheticCreationalContext<StreamingChatModel>, StreamingChatModel> streamingChatModel(
+            final String configName) {
         if (!correspondingConfig(configName).enableIntegration()) {
-            return new Supplier<StreamingChatModel>() {
+            return new Function<>() {
                 @Override
-                public StreamingChatModel get() {
+                public StreamingChatModel apply(SyntheticCreationalContext<StreamingChatModel> context) {
                     return new DisabledStreamingChatModel();
                 }
             };
         }
-        return new Supplier<StreamingChatModel>() {
+        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+        validate(configName, "chat-model", chat.modelPath(), chat.model());
+        return new Function<>() {
             @Override
-            public StreamingChatModel get() {
-                return getOrCreateChatModel(configName).streaming();
+            public StreamingChatModel apply(SyntheticCreationalContext<StreamingChatModel> context) {
+                return getOrCreateChatModel(configName, context).streaming();
             }
         };
     }
@@ -103,20 +127,29 @@ public class JinferRecorder {
                 }
             };
         }
+        EmbeddingModelConfig emb = correspondingConfig(configName).embeddingModel();
+        validate(configName, "embedding-model", emb.modelPath(), emb.model());
         return new Supplier<EmbeddingModel>() {
             @Override
             public EmbeddingModel get() {
-                EmbeddingModelConfig emb = correspondingConfig(configName).embeddingModel();
                 JinferEmbeddingModel.Builder builder = JinferEmbeddingModel.builder();
                 if (emb.modelPath().isPresent()) {
                     builder.modelPath(emb.modelPath().get());
-                } else if (emb.model().isPresent()) {
-                    builder.model(emb.model().get());
                 } else {
-                    throw missingModel(configName, "embedding-model");
+                    builder.model(emb.model().get());
                 }
                 if (emb.contextCapacity().isPresent()) {
                     builder.contextCapacity(emb.contextCapacity().getAsInt());
+                }
+                for (Map.Entry<String, String> companion : emb.companions().entrySet()) {
+                    if (ModelStore.isRef(companion.getValue())) {
+                        builder.companion(companion.getKey(), companion.getValue());
+                    } else {
+                        builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
+                    }
+                }
+                if (emb.dimensions().isPresent()) {
+                    builder.dimensions(emb.dimensions().getAsInt());
                 }
                 JinferEmbeddingModel model = builder.build();
                 JinferModels.registerForClose(model);
@@ -134,17 +167,16 @@ public class JinferRecorder {
                 }
             };
         }
+        ScoringModelConfig scoring = correspondingConfig(configName).scoringModel();
+        validate(configName, "scoring-model", scoring.modelPath(), scoring.model());
         return new Supplier<ScoringModel>() {
             @Override
             public ScoringModel get() {
-                ScoringModelConfig scoring = correspondingConfig(configName).scoringModel();
                 JinferScoringModel.Builder builder = JinferScoringModel.builder();
                 if (scoring.modelPath().isPresent()) {
                     builder.modelPath(scoring.modelPath().get());
-                } else if (scoring.model().isPresent()) {
-                    builder.model(scoring.model().get());
                 } else {
-                    throw missingModel(configName, "scoring-model");
+                    builder.model(scoring.model().get());
                 }
                 if (scoring.contextCapacity().isPresent()) {
                     builder.contextCapacity(scoring.contextCapacity().getAsInt());
@@ -168,17 +200,16 @@ public class JinferRecorder {
                 }
             };
         }
+        TranscriptionModelConfig transcription = correspondingConfig(configName).transcriptionModel();
+        validate(configName, "transcription-model", transcription.modelPath(), transcription.model());
         return new Supplier<AudioTranscriptionModel>() {
             @Override
             public AudioTranscriptionModel get() {
-                TranscriptionModelConfig transcription = correspondingConfig(configName).transcriptionModel();
                 JinferTranscriptionModel.Builder builder = JinferTranscriptionModel.builder();
                 if (transcription.modelPath().isPresent()) {
                     builder.modelPath(transcription.modelPath().get());
-                } else if (transcription.model().isPresent()) {
-                    builder.model(transcription.model().get());
                 } else {
-                    throw missingModel(configName, "transcription-model");
+                    builder.model(transcription.model().get());
                 }
                 JinferTranscriptionModel model = builder.build();
                 JinferModels.registerForClose(model);
@@ -196,17 +227,23 @@ public class JinferRecorder {
                 }
             };
         }
+        TtsModelConfig tts = correspondingConfig(configName).ttsModel();
+        validate(configName, "tts-model", tts.modelPath(), tts.model());
         return new Supplier<TextToSpeechModel>() {
             @Override
             public TextToSpeechModel get() {
-                TtsModelConfig tts = correspondingConfig(configName).ttsModel();
                 JinferSpeechModel.Builder builder = JinferSpeechModel.builder();
                 if (tts.modelPath().isPresent()) {
                     builder.modelPath(tts.modelPath().get());
-                } else if (tts.model().isPresent()) {
-                    builder.model(tts.model().get());
                 } else {
-                    throw missingModel(configName, "tts-model");
+                    builder.model(tts.model().get());
+                }
+                for (Map.Entry<String, String> companion : tts.companions().entrySet()) {
+                    if (ModelStore.isRef(companion.getValue())) {
+                        builder.companion(companion.getKey(), companion.getValue());
+                    } else {
+                        builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
+                    }
                 }
                 if (tts.speed().isPresent()) {
                     builder.speed(tts.speed().getAsDouble());
@@ -221,28 +258,33 @@ public class JinferRecorder {
         };
     }
 
-    private JinferChatModel getOrCreateChatModel(String configName) {
-        JinferChatModel existing = JinferModels.getChatModel(configName);
-        if (existing != null) {
-            return existing;
+    private JinferChatModel getOrCreateChatModel(String configName, SyntheticCreationalContext<?> context) {
+        // shortcut: first loads of different chat models run one at a time, use per-config locks if that hurts
+        synchronized (CHAT_LOAD_LOCK) {
+            JinferChatModel model = JinferModels.getChatModel(configName);
+            if (model == null) {
+                model = buildChatModel(configName, context);
+                JinferModels.storeChatModel(configName, model);
+            }
+            return model;
         }
-        return JinferModels.storeChatModelIfAbsent(configName, buildChatModel(configName));
     }
 
-    private JinferChatModel buildChatModel(String configName) {
-        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+    private JinferChatModel buildChatModel(String configName, SyntheticCreationalContext<?> context) {
+        LangChain4jJinferConfig.JinferConfig config = correspondingConfig(configName);
+        ChatModelConfig chat = config.chatModel();
         JinferChatModel.Builder builder = JinferChatModel.builder();
         if (chat.modelPath().isPresent()) {
             builder.modelPath(chat.modelPath().get());
-        } else if (chat.model().isPresent()) {
-            builder.model(chat.model().get());
         } else {
-            throw missingModel(configName, "chat-model");
+            builder.model(chat.model().get());
         }
         if (chat.contextCapacity().isPresent()) {
             builder.contextCapacity(chat.contextCapacity().getAsInt());
         }
-        builder.temperature(chat.temperature());
+        if (chat.temperature().isPresent()) {
+            builder.temperature(chat.temperature().getAsDouble());
+        }
         if (chat.topP().isPresent()) {
             builder.topP(chat.topP().getAsDouble());
         }
@@ -267,6 +309,24 @@ public class JinferRecorder {
         if (chat.thinking().isPresent()) {
             builder.thinking(chat.thinking().get());
         }
+        for (Map.Entry<String, String> companion : chat.companions().entrySet()) {
+            if (ModelStore.isRef(companion.getValue())) {
+                builder.companion(companion.getKey(), companion.getValue());
+            } else {
+                builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
+            }
+        }
+        if (config.timeout().isPresent()) {
+            builder.timeout(config.timeout().get());
+        }
+        List<ChatModelListener> listeners = new ArrayList<>();
+        for (ChatModelListener listener : context.getInjectedReference(CHAT_MODEL_LISTENER_TYPE_LITERAL)) {
+            listeners.add(listener);
+        }
+        builder.listeners(listeners);
+        ModelBuilderCustomizer.applyCustomizers(
+                context.getInjectedReference(CHAT_MODEL_CUSTOMIZER_TYPE_LITERAL, Any.Literal.INSTANCE),
+                builder, configName);
         return builder.build();
     }
 
@@ -276,10 +336,19 @@ public class JinferRecorder {
                 : runtimeConfig.getValue().namedConfig().get(configName);
     }
 
-    private static IllegalStateException missingModel(String configName, String typeKey) {
-        String key = "quarkus.langchain4j.jinfer." + qualify(configName, typeKey);
-        return new IllegalStateException(
-                "Jinfer " + typeKey + " requires either '" + key + ".model' or '" + key + ".model-path' to be set");
+    private static void validate(String configName, String typeKey, Optional<Path> modelPath, Optional<String> model) {
+        if (modelPath.isEmpty() && model.isEmpty()) {
+            String key = "quarkus.langchain4j.jinfer." + qualify(configName, typeKey);
+            throw new ConfigValidationException(new ConfigValidationException.Problem[] {
+                    new ConfigValidationException.Problem(
+                            "Jinfer " + typeKey + " requires either '" + key + ".model' or '" + key + ".model-path' to be set")
+            });
+        }
+        if (!ImageMode.current().isNativeImage() && ModuleLayer.boot().findModule("jdk.incubator.vector").isEmpty()) {
+            throw new ConfigurationException(
+                    "jinfer needs the Vector API: start the JVM with --add-modules jdk.incubator.vector, see "
+                            + "https://docs.quarkiverse.io/quarkus-langchain4j/dev/jinfer.html#_vector_api");
+        }
     }
 
     private static String qualify(String configName, String typeKey) {

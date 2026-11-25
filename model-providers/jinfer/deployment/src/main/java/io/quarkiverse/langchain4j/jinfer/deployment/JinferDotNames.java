@@ -2,6 +2,8 @@ package io.quarkiverse.langchain4j.jinfer.deployment;
 
 import org.jboss.jandex.DotName;
 
+import com.qxotic.jinfer.langchain4j.JinferChatModel;
+
 import dev.langchain4j.model.audio.TextToSpeechModel;
 import io.quarkiverse.langchain4j.ModelName;
 
@@ -13,6 +15,7 @@ final class JinferDotNames {
 
     static final DotName TEXT_TO_SPEECH_MODEL = DotName.createSimple(TextToSpeechModel.class);
     static final DotName MODEL_NAME = DotName.createSimple(ModelName.class);
+    static final DotName CHAT_MODEL_BUILDER = DotName.createSimple(JinferChatModel.Builder.class);
 
     private JinferDotNames() {
     }
