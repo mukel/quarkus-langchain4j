@@ -17,6 +17,8 @@ import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.embedding.onnx.HuggingFaceTokenCountEstimator;
+import dev.langchain4j.model.embedding.request.EmbeddingInputType;
+import dev.langchain4j.model.embedding.request.EmbeddingRequestParameters;
 import dev.langchain4j.store.embedding.EmbeddingStore;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
@@ -101,11 +103,13 @@ public class EasyRagIngestor {
                 .map(split -> Document.document(split.text()))
                 .toList();
 
-        EmbeddingStoreIngestor.builder()
+        EmbeddingStoreIngestor.Builder ingestor = EmbeddingStoreIngestor.builder()
                 .embeddingModel(embeddingModel)
-                .embeddingStore(embeddingStore)
-                .build()
-                .ingest(splitDocuments);
+                .embeddingStore(embeddingStore);
+        if (embeddingModel.supportedParameters().contains(EmbeddingRequestParameters.INPUT_TYPE)) {
+            ingestor.embeddingInputType(EmbeddingInputType.DOCUMENT);
+        }
+        ingestor.build().ingest(splitDocuments);
 
         LOGGER.info("Ingested " + documents.size() + " files as " + splitDocuments.size() + " documents");
     }

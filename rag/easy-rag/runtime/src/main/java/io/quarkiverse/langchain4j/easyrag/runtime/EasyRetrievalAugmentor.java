@@ -1,6 +1,8 @@
 package io.quarkiverse.langchain4j.easyrag.runtime;
 
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.request.EmbeddingInputType;
+import dev.langchain4j.model.embedding.request.EmbeddingRequestParameters;
 import dev.langchain4j.rag.AugmentationRequest;
 import dev.langchain4j.rag.AugmentationResult;
 import dev.langchain4j.rag.DefaultRetrievalAugmentor;
@@ -23,6 +25,9 @@ public class EasyRetrievalAugmentor implements RetrievalAugmentor {
                 .maxResults(config.maxResults());
 
         config.minScore().ifPresent(contentRetrieverBuilder::minScore);
+        if (embeddingModel.supportedParameters().contains(EmbeddingRequestParameters.INPUT_TYPE)) {
+            contentRetrieverBuilder.embeddingInputType(EmbeddingInputType.QUERY);
+        }
 
         delegate = DefaultRetrievalAugmentor.builder()
                 .contentRetriever(contentRetrieverBuilder.build()).build();

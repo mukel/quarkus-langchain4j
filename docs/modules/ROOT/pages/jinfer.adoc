@@ -215,6 +215,11 @@ quarkus.langchain4j.jinfer.tts-model.model=simonfxr/kokoro.cpp-GGUF:Q8_0
 quarkus.langchain4j.jinfer.tts-model.companions.voice=simonfxr/kokoro.cpp-GGUF/voices/kokoro-voice-af_heart.gguf
 ----
 
+=== RAG
+
+Easy RAG embeds documents and queries with the framing the embedding model expects.
+When you wire `EmbeddingStoreIngestor` or `EmbeddingStoreContentRetriever` yourself, set `embeddingInputType` to `DOCUMENT` and `QUERY`.
+
 === Token counting
 
 A `TokenCountEstimator` bean counts tokens with the chat model's tokenizer, so `quarkus.langchain4j.chat-memory.type=token-window` works without extra wiring.
