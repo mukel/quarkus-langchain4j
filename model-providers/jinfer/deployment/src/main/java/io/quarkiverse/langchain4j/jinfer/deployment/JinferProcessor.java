@@ -105,7 +105,7 @@ public class JinferProcessor {
         if (config.decisionModel().enabled().orElse(true)) {
             decisionProducer.produce(new DecisionModelProviderCandidateBuildItem(PROVIDER));
         }
-        if (config.transcriptionModel().enabled().orElse(true)) {
+        if (config.audioTranscriptionModel().enabled().orElse(true)) {
             transcriptionProducer.produce(new AudioTranscriptionModelProviderCandidateBuildItem(PROVIDER));
         }
     }

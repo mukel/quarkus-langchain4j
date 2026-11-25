@@ -73,7 +73,7 @@ public interface LangChain4jJinferConfig {
         /**
          * Audio transcription model related settings.
          */
-        TranscriptionModelConfig transcriptionModel();
+        TranscriptionModelConfig audioTranscriptionModel();
 
         /**
          * Text-to-speech model related settings.

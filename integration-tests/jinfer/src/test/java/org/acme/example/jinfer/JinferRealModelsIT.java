@@ -111,7 +111,7 @@ class JinferRealModelsIT {
                     Map.entry("quarkus.langchain4j.jinfer.d3.decision-model.model", "ggml-org/vllm-d3-edge-GGUF:Q8_0"),
                     Map.entry("quarkus.langchain4j.decision-service.\"StrictFilter\".threshold-by-model.\"d1-2B-Q8_0.gguf\"",
                             "1.0"),
-                    Map.entry("quarkus.langchain4j.jinfer.transcription-model.model",
+                    Map.entry("quarkus.langchain4j.jinfer.audio-transcription-model.model",
                             "mudler/parakeet-cpp-gguf/tdt-0.6b-v3-q8_0.gguf"),
                     Map.entry("quarkus.langchain4j.jinfer.tts-model.model", "simonfxr/kokoro.cpp-GGUF:Q8_0"),
                     Map.entry("quarkus.langchain4j.jinfer.tts-model.companions.voice", VOICE),

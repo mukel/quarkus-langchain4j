@@ -259,8 +259,8 @@ public class JinferRecorder {
                 }
             };
         }
-        TranscriptionModelConfig transcription = correspondingConfig(configName).transcriptionModel();
-        validate(configName, "transcription-model", transcription.modelPath(), transcription.model());
+        TranscriptionModelConfig transcription = correspondingConfig(configName).audioTranscriptionModel();
+        validate(configName, "audio-transcription-model", transcription.modelPath(), transcription.model());
         return new Supplier<AudioTranscriptionModel>() {
             @Override
             public AudioTranscriptionModel get() {

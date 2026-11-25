@@ -32,7 +32,7 @@ public interface LangChain4jJinferBuildConfig {
     /**
      * Audio transcription model related settings.
      */
-    TranscriptionModelBuildConfig transcriptionModel();
+    TranscriptionModelBuildConfig audioTranscriptionModel();
 
     /**
      * Text-to-speech model related settings.
