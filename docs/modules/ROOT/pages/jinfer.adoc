@@ -9,7 +9,14 @@ This extension integrates jinfer's LangChain4j support, exposing chat, streaming
 
 == Quick start
 
-Add the extension and choose a model:
+Create a project that is ready to run, with a small model, an AI service and the Vector API flag already set up:
+
+[source,shell]
+----
+quarkus create app --java=25 -x rest,io.quarkiverse.langchain4j:quarkus-langchain4j-jinfer
+----
+
+Or add the extension to an existing project and choose a model:
 
 [source,xml,subs=attributes+]
 ----
@@ -63,8 +70,8 @@ Everywhere else, add the flag once:
 |Jib container image
 |`quarkus.jib.jvm-additional-arguments=--add-modules=jdk.incubator.vector`
 
-|Your own Dockerfile
-|Add it to `JAVA_OPTS_APPEND`, keeping the options already there
+|`src/main/docker/Dockerfile.jvm`
+|Projects created with the extension have it. Otherwise add it to `JAVA_OPTS_APPEND`, keeping the options already there
 
 |AOT cache
 |`quarkus.package.jar.aot.additional-recording-args=--add-modules=jdk.incubator.vector`

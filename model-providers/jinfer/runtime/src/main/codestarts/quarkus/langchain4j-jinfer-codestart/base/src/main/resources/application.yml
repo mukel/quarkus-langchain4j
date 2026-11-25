@@ -1,0 +1,9 @@
+quarkus:
+  langchain4j:
+    jinfer:
+      chat-model:
+        # A HuggingFace GGUF reference, downloaded once into this machine's cache, or a local path such as ./models/model.gguf
+        model: LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
+  test:
+    # jinfer needs the Vector API in the application started by @QuarkusIntegrationTest
+    arg-line: --add-modules=jdk.incubator.vector

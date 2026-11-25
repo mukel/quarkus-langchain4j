@@ -1,0 +1,10 @@
+name: langchain4j-jinfer-codestart
+ref: langchain4j-jinfer
+type: code
+tags: extension-codestart
+output-strategy:
+  "src/main/docker/Dockerfile.jvm": append
+metadata:
+  title: LangChain4j Jinfer
+  description: An AI service answered by a small LLM running inside the application.
+  related-guide-section: https://docs.quarkiverse.io/quarkus-langchain4j/dev/jinfer.html

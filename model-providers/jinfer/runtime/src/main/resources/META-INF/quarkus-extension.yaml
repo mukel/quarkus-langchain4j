@@ -12,3 +12,9 @@ metadata:
   categories:
     - "ai"
   status: "preview"
+  minimum-java-version: "25"
+  codestart:
+    name: langchain4j-jinfer
+    languages:
+      - "java"
+    artifact: "io.quarkiverse.langchain4j:quarkus-langchain4j-jinfer:codestarts:jar:${project.version}"

@@ -1,0 +1,3 @@
+
+# jinfer needs the Vector API
+ENV JAVA_OPTS_APPEND="$JAVA_OPTS_APPEND --add-modules=jdk.incubator.vector"
