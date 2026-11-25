@@ -42,8 +42,10 @@ import dev.langchain4j.model.decision.request.DecisionRequestParameters;
 import dev.langchain4j.model.decision.response.DecisionResponse;
 import dev.langchain4j.model.embedding.DisabledEmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.listener.EmbeddingModelListener;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
+import dev.langchain4j.model.scoring.listener.ScoringModelListener;
 import io.quarkiverse.langchain4j.ModelBuilderCustomizer;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.ChatModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.DecisionModelConfig;
@@ -68,6 +70,10 @@ public class JinferRecorder {
     private static final TypeLiteral<Instance<ChatModelListener>> CHAT_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
     };
     private static final TypeLiteral<Instance<ModelBuilderCustomizer<JinferChatModel.Builder>>> CHAT_MODEL_CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+    private static final TypeLiteral<Instance<EmbeddingModelListener>> EMBEDDING_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+    private static final TypeLiteral<Instance<ScoringModelListener>> SCORING_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
     };
     private static final TypeLiteral<Instance<DecisionModelListener>> DECISION_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
     };
@@ -130,19 +136,19 @@ public class JinferRecorder {
         };
     }
 
-    public Supplier<EmbeddingModel> embeddingModel(final String configName) {
+    public Function<SyntheticCreationalContext<EmbeddingModel>, EmbeddingModel> embeddingModel(final String configName) {
         EmbeddingModelConfig emb = correspondingConfig(configName).embeddingModel();
         if (!enabled(configName, "embedding-model", emb.model())) {
-            return new Supplier<EmbeddingModel>() {
+            return new Function<>() {
                 @Override
-                public EmbeddingModel get() {
+                public EmbeddingModel apply(SyntheticCreationalContext<EmbeddingModel> context) {
                     return new DisabledEmbeddingModel();
                 }
             };
         }
-        return new Supplier<EmbeddingModel>() {
+        return new Function<>() {
             @Override
-            public EmbeddingModel get() {
+            public EmbeddingModel apply(SyntheticCreationalContext<EmbeddingModel> context) {
                 JinferEmbeddingModel.Builder builder = JinferEmbeddingModel.builder();
                 String modelRef = emb.model().get();
                 if (isRemote(modelRef)) {
@@ -163,6 +169,7 @@ public class JinferRecorder {
                 if (emb.dimensions().isPresent()) {
                     builder.dimensions(emb.dimensions().getAsInt());
                 }
+                builder.listeners(listOf(context.getInjectedReference(EMBEDDING_MODEL_LISTENER_TYPE_LITERAL)));
                 JinferEmbeddingModel model = builder.build();
                 JinferModels.registerForClose(model);
                 return model;
@@ -170,19 +177,19 @@ public class JinferRecorder {
         };
     }
 
-    public Supplier<ScoringModel> scoringModel(final String configName) {
+    public Function<SyntheticCreationalContext<ScoringModel>, ScoringModel> scoringModel(final String configName) {
         ScoringModelConfig scoring = correspondingConfig(configName).scoringModel();
         if (!enabled(configName, "scoring-model", scoring.model())) {
-            return new Supplier<ScoringModel>() {
+            return new Function<>() {
                 @Override
-                public ScoringModel get() {
+                public ScoringModel apply(SyntheticCreationalContext<ScoringModel> context) {
                     return new DisabledScoringModel();
                 }
             };
         }
-        return new Supplier<ScoringModel>() {
+        return new Function<>() {
             @Override
-            public ScoringModel get() {
+            public ScoringModel apply(SyntheticCreationalContext<ScoringModel> context) {
                 JinferScoringModel.Builder builder = JinferScoringModel.builder();
                 String modelRef = scoring.model().get();
                 if (isRemote(modelRef)) {
@@ -196,6 +203,7 @@ public class JinferRecorder {
                 if (scoring.instruction().isPresent()) {
                     builder.instruction(scoring.instruction().get());
                 }
+                builder.listeners(listOf(context.getInjectedReference(SCORING_MODEL_LISTENER_TYPE_LITERAL)));
                 JinferScoringModel model = builder.build();
                 JinferModels.registerForClose(model);
                 return model;
@@ -233,11 +241,7 @@ public class JinferRecorder {
                         builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
                     }
                 }
-                List<DecisionModelListener> listeners = new ArrayList<>();
-                for (DecisionModelListener listener : context.getInjectedReference(DECISION_MODEL_LISTENER_TYPE_LITERAL)) {
-                    listeners.add(listener);
-                }
-                builder.listeners(listeners);
+                builder.listeners(listOf(context.getInjectedReference(DECISION_MODEL_LISTENER_TYPE_LITERAL)));
                 ModelBuilderCustomizer.applyCustomizers(
                         context.getInjectedReference(DECISION_MODEL_CUSTOMIZER_TYPE_LITERAL, Any.Literal.INSTANCE),
                         builder, configName);
@@ -377,15 +381,19 @@ public class JinferRecorder {
         if (config.timeout().isPresent()) {
             builder.timeout(config.timeout().get());
         }
-        List<ChatModelListener> listeners = new ArrayList<>();
-        for (ChatModelListener listener : context.getInjectedReference(CHAT_MODEL_LISTENER_TYPE_LITERAL)) {
-            listeners.add(listener);
-        }
-        builder.listeners(listeners);
+        builder.listeners(listOf(context.getInjectedReference(CHAT_MODEL_LISTENER_TYPE_LITERAL)));
         ModelBuilderCustomizer.applyCustomizers(
                 context.getInjectedReference(CHAT_MODEL_CUSTOMIZER_TYPE_LITERAL, Any.Literal.INSTANCE),
                 builder, configName);
         return builder.build();
+    }
+
+    private static <T> List<T> listOf(Instance<T> beans) {
+        List<T> list = new ArrayList<>();
+        for (T bean : beans) {
+            list.add(bean);
+        }
+        return list;
     }
 
     private LangChain4jJinferConfig.JinferConfig correspondingConfig(String configName) {

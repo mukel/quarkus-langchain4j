@@ -48,7 +48,11 @@ import dev.langchain4j.model.decision.request.ScaleQuestion;
 import dev.langchain4j.model.decision.request.YesNoQuestion;
 import dev.langchain4j.model.decision.response.DecisionResponse;
 import dev.langchain4j.model.embedding.EmbeddingModel;
+import dev.langchain4j.model.embedding.listener.EmbeddingModelListener;
+import dev.langchain4j.model.embedding.listener.EmbeddingModelResponseContext;
 import dev.langchain4j.model.scoring.ScoringModel;
+import dev.langchain4j.model.scoring.listener.ScoringModelListener;
+import dev.langchain4j.model.scoring.listener.ScoringModelResponseContext;
 import dev.langchain4j.service.MemoryId;
 import dev.langchain4j.service.V;
 import dev.langchain4j.service.decision.Choice;
@@ -150,6 +154,34 @@ class JinferRealModelsIT {
         }
     }
 
+    @ApplicationScoped
+    public static class EmbeddingListener implements EmbeddingModelListener {
+        private final AtomicInteger responses = new AtomicInteger();
+
+        public int responses() {
+            return responses.get();
+        }
+
+        @Override
+        public void onResponse(EmbeddingModelResponseContext context) {
+            responses.incrementAndGet();
+        }
+    }
+
+    @ApplicationScoped
+    public static class ScoringListener implements ScoringModelListener {
+        private final AtomicInteger responses = new AtomicInteger();
+
+        public int responses() {
+            return responses.get();
+        }
+
+        @Override
+        public void onResponse(ScoringModelResponseContext context) {
+            responses.incrementAndGet();
+        }
+    }
+
     @RegisterAiService
     public interface Assistant {
         String chat(@MemoryId String conversation, @dev.langchain4j.service.UserMessage String message);
@@ -220,6 +252,12 @@ class JinferRealModelsIT {
 
     @Inject
     ChatListener chatListener;
+
+    @Inject
+    EmbeddingListener embeddingListener;
+
+    @Inject
+    ScoringListener scoringListener;
 
     @Inject
     EmbeddingModel embeddingModel;
@@ -357,6 +395,7 @@ class JinferRealModelsIT {
 
     @Test
     void embeddingsRankRelatedTextFirstAtBothWidths() {
+        int notified = embeddingListener.responses();
         for (EmbeddingModel model : List.of(embeddingModel, shortEmbeddingModel)) {
             List<Embedding> vectors = model.embedAll(List.of(
                     TextSegment.from("A cat sleeps on the sofa"),
@@ -367,14 +406,17 @@ class JinferRealModelsIT {
         assertThat(embeddingModel.dimension()).isEqualTo(768);
         assertThat(shortEmbeddingModel.dimension()).isEqualTo(256);
         assertThat(shortEmbeddingModel.embed("hello").content().dimension()).isEqualTo(256);
+        assertThat(embeddingListener.responses()).isGreaterThan(notified);
     }
 
     @Test
     void scoringRanksTheRelevantDocumentFirst() {
+        int notified = scoringListener.responses();
         List<Double> scores = scoringModel.scoreAll(List.of(
                 TextSegment.from("Paris is the capital of France."),
                 TextSegment.from("Bananas are rich in potassium.")), "What is the capital of France?").content();
         assertThat(scores.get(0)).isGreaterThan(scores.get(1));
+        assertThat(scoringListener.responses()).isGreaterThan(notified);
     }
 
     @Test

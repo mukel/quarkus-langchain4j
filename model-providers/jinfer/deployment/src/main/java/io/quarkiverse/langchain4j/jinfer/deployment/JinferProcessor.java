@@ -139,9 +139,11 @@ public class JinferProcessor {
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedEmbeddingModels) {
             if (PROVIDER.equals(selected.getProvider())) {
-                beanProducer.produce(modelBean(EMBEDDING_MODEL, selected.getConfigName())
+                String configName = selected.getConfigName();
+                beanProducer.produce(modelBean(EMBEDDING_MODEL, configName)
                         .unremovable()
-                        .supplier(recorder.embeddingModel(selected.getConfigName()))
+                        .addInjectionPoint(instanceOf(ClassType.create(JinferDotNames.EMBEDDING_MODEL_LISTENER)))
+                        .createWith(recorder.embeddingModel(configName))
                         .done());
             }
         }
@@ -154,9 +156,11 @@ public class JinferProcessor {
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         for (var selected : selectedScoringModels) {
             if (PROVIDER.equals(selected.getProvider())) {
-                beanProducer.produce(modelBean(SCORING_MODEL, selected.getConfigName())
+                String configName = selected.getConfigName();
+                beanProducer.produce(modelBean(SCORING_MODEL, configName)
                         .unremovable()
-                        .supplier(recorder.scoringModel(selected.getConfigName()))
+                        .addInjectionPoint(instanceOf(ClassType.create(JinferDotNames.SCORING_MODEL_LISTENER)))
+                        .createWith(recorder.scoringModel(configName))
                         .done());
             }
         }

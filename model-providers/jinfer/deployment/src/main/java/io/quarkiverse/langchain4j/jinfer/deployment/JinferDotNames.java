@@ -6,6 +6,8 @@ import com.qxotic.jinfer.langchain4j.JinferChatModel;
 import com.qxotic.jinfer.langchain4j.JinferDecisionModel;
 
 import dev.langchain4j.model.audio.TextToSpeechModel;
+import dev.langchain4j.model.embedding.listener.EmbeddingModelListener;
+import dev.langchain4j.model.scoring.listener.ScoringModelListener;
 import io.quarkiverse.langchain4j.ModelName;
 
 /**
@@ -16,6 +18,8 @@ final class JinferDotNames {
 
     static final DotName TEXT_TO_SPEECH_MODEL = DotName.createSimple(TextToSpeechModel.class);
     static final DotName MODEL_NAME = DotName.createSimple(ModelName.class);
+    static final DotName EMBEDDING_MODEL_LISTENER = DotName.createSimple(EmbeddingModelListener.class);
+    static final DotName SCORING_MODEL_LISTENER = DotName.createSimple(ScoringModelListener.class);
     static final DotName CHAT_MODEL_BUILDER = DotName.createSimple(JinferChatModel.Builder.class);
     static final DotName DECISION_MODEL_BUILDER = DotName.createSimple(JinferDecisionModel.Builder.class);
 
