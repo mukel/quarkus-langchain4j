@@ -21,9 +21,11 @@ import com.qxotic.jinfer.langchain4j.JinferScoringModel;
 import com.qxotic.jinfer.langchain4j.JinferSpeechModel;
 import com.qxotic.jinfer.langchain4j.JinferTranscriptionModel;
 
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.ModelDisabledException;
 import dev.langchain4j.model.ModelProvider;
+import dev.langchain4j.model.TokenCountEstimator;
 import dev.langchain4j.model.audio.AudioTranscriptionModel;
 import dev.langchain4j.model.audio.AudioTranscriptionRequest;
 import dev.langchain4j.model.audio.AudioTranscriptionResponse;
@@ -132,6 +134,25 @@ public class JinferRecorder {
             @Override
             public StreamingChatModel apply(SyntheticCreationalContext<StreamingChatModel> context) {
                 return getOrCreateChatModel(configName, context).streaming();
+            }
+        };
+    }
+
+    public Function<SyntheticCreationalContext<TokenCountEstimator>, TokenCountEstimator> tokenCountEstimator(
+            final String configName) {
+        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+        if (!enabled(configName, "chat-model", chat.model())) {
+            return new Function<>() {
+                @Override
+                public TokenCountEstimator apply(SyntheticCreationalContext<TokenCountEstimator> context) {
+                    return new DisabledTokenCountEstimator();
+                }
+            };
+        }
+        return new Function<>() {
+            @Override
+            public TokenCountEstimator apply(SyntheticCreationalContext<TokenCountEstimator> context) {
+                return getOrCreateChatModel(configName, context).tokenCountEstimator();
             }
         };
     }
@@ -448,6 +469,27 @@ public class JinferRecorder {
 
     private static String qualify(String configName, String typeKey) {
         return NamedConfigUtil.isDefault(configName) ? typeKey : "\"" + configName + "\"." + typeKey;
+    }
+
+    private static final class DisabledTokenCountEstimator implements TokenCountEstimator {
+        @Override
+        public int estimateTokenCountInText(String text) {
+            throw disabled();
+        }
+
+        @Override
+        public int estimateTokenCountInMessage(ChatMessage message) {
+            throw disabled();
+        }
+
+        @Override
+        public int estimateTokenCountInMessages(Iterable<ChatMessage> messages) {
+            throw disabled();
+        }
+
+        private static ModelDisabledException disabled() {
+            return new ModelDisabledException("TokenCountEstimator is disabled");
+        }
     }
 
     private static final class DisabledScoringModel implements ScoringModel {

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import com.qxotic.jinfer.langchain4j.JinferChatModel;
 
 import dev.langchain4j.model.ModelDisabledException;
+import dev.langchain4j.model.TokenCountEstimator;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.DisabledChatModel;
 import dev.langchain4j.model.chat.DisabledStreamingChatModel;
@@ -39,6 +40,9 @@ public class JinferChatBeansTest {
     StreamingChatModel streamingChatModel;
 
     @Inject
+    TokenCountEstimator tokenCountEstimator;
+
+    @Inject
     @ModelName("custom")
     ChatModel customChatModel;
 
@@ -51,6 +55,12 @@ public class JinferChatBeansTest {
         assertThat(ClientProxy.unwrap(chatModel)).isInstanceOf(DisabledChatModel.class);
         assertThatExceptionOfType(ModelDisabledException.class)
                 .isThrownBy(() -> chatModel.chat("Hello"));
+    }
+
+    @Test
+    void tokenCountEstimatorBeanIsProducedAndDisabled() {
+        assertThatExceptionOfType(ModelDisabledException.class)
+                .isThrownBy(() -> tokenCountEstimator.estimateTokenCountInText("Hello"));
     }
 
     @Test

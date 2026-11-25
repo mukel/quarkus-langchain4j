@@ -128,6 +128,10 @@ quarkus.langchain4j.jinfer.tts-model.model=simonfxr/kokoro.cpp-GGUF:Q8_0
 quarkus.langchain4j.jinfer.tts-model.companions.voice=simonfxr/kokoro.cpp-GGUF/voices/kokoro-voice-af_heart.gguf
 ----
 
+=== Token counting
+
+A `TokenCountEstimator` bean counts tokens with the chat model's tokenizer, so `quarkus.langchain4j.chat-memory.type=token-window` works without extra wiring.
+
 === Observability
 
 `ChatModelListener`, `EmbeddingModelListener`, `ScoringModelListener` and `DecisionModelListener` beans are notified of every call to their model type.

@@ -128,6 +128,9 @@ public class JinferProcessor {
                 beanProducer.produce(chatBean(STREAMING_CHAT_MODEL, configName)
                         .createWith(recorder.streamingChatModel(configName))
                         .done());
+                beanProducer.produce(chatBean(JinferDotNames.TOKEN_COUNT_ESTIMATOR, configName)
+                        .createWith(recorder.tokenCountEstimator(configName))
+                        .done());
             }
         }
     }

@@ -33,6 +33,7 @@ import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.exception.TimeoutException;
+import dev.langchain4j.model.TokenCountEstimator;
 import dev.langchain4j.model.audio.AudioTranscriptionModel;
 import dev.langchain4j.model.audio.TextToSpeechModel;
 import dev.langchain4j.model.chat.ChatModel;
@@ -260,6 +261,9 @@ class JinferRealModelsIT {
     ScoringListener scoringListener;
 
     @Inject
+    TokenCountEstimator tokenCountEstimator;
+
+    @Inject
     EmbeddingModel embeddingModel;
 
     @Inject
@@ -317,6 +321,13 @@ class JinferRealModelsIT {
         assistant.chat("memory", "My name is Ada.");
         assertThat(assistant.chat("memory", "What is my name?")).containsIgnoringCase("Ada");
         assertThat(chatListener.responses()).isEqualTo(before + 2);
+    }
+
+    @Test
+    void tokenCountsUseTheChatModelsTokenizer() {
+        int shortText = tokenCountEstimator.estimateTokenCountInText("Hello world");
+        assertThat(shortText).isBetween(1, 5);
+        assertThat(tokenCountEstimator.estimateTokenCountInText("Hello world, ".repeat(20))).isGreaterThan(shortText);
     }
 
     @Test

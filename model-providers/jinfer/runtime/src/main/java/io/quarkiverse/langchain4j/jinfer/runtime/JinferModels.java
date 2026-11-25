@@ -22,8 +22,8 @@ final class JinferModels {
 
     private static final Logger LOG = Logger.getLogger(JinferModels.class);
 
-    // One chat model per config name, shared between the ChatModel and StreamingChatModel beans
-    // so the (large) weights are loaded only once.
+    // One chat model per config name, shared by the ChatModel, StreamingChatModel and
+    // TokenCountEstimator beans so the (large) weights are loaded only once.
     private static final Map<String, JinferChatModel> SHARED_CHAT = new HashMap<>();
 
     // Every loaded model (incl. the shared chat models) registers here so it is closed on shutdown.
