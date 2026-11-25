@@ -236,6 +236,48 @@ jobs:
             build-reports.zip
           retention-days: 7
 
+  jinfer-real-model-tests:
+    needs: quick-build
+    name: Jinfer real model tests
+    runs-on: runs-on=${{ github.run_id }}/runner=linux
+    steps:
+      - uses: runs-on/action@v2
+
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Download the Maven repo
+        uses: actions/download-artifact@v4
+        with:
+          name: maven-repo
+          path: ..
+      - name: Unzip the Maven Repo
+        shell: bash
+        run: |
+          tar -xzf ../maven-repo.tgz -C ~
+
+      - name: Cache jinfer models
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/jinfer
+            ~/.cache/huggingface
+          # Bump when the models these tests download change.
+          key: jinfer-models-1
+
+      - name: Build Jinfer extension
+        run: ./mvnw -B clean install -DskipTests -Dno-format -ntp -f model-providers/jinfer/pom.xml
+
+      - name: Run the integration tests and the real chat model tests
+        run: >-
+          ./mvnw -B verify -Dno-format -ntp -f integration-tests/jinfer/pom.xml -DskipITs=false
+          '-Dit.test=JinferRealModelsIT#chatRemembersTheConversationAndNotifiesListeners+chatStreams+tokenCountsUseTheChatModelsTokenizer+concurrentChatsEachGetTheirOwnAnswer'
+
   native-tests:
     needs: quick-build
     name: Native tests - ${{matrix.module}}
