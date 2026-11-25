@@ -138,6 +138,8 @@ The extension's real-model tests run these, one per model type, so they are good
 Weights are memory-mapped, so a model needs about its download size in memory, plus its context.
 Several applications on one machine that load the same file share those pages.
 
+A chat model answers one request at a time, and concurrent requests wait their turn in order.
+
 === Models in the container image
 
 Each new container downloads its models again.

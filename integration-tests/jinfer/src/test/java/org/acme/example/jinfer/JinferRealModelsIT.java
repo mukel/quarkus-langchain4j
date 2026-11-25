@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -261,6 +262,9 @@ class JinferRealModelsIT {
     ScoringListener scoringListener;
 
     @Inject
+    ChatModel chatModel;
+
+    @Inject
     TokenCountEstimator tokenCountEstimator;
 
     @Inject
@@ -387,6 +391,23 @@ class JinferRealModelsIT {
         });
         assertThat(blocking.get(5, TimeUnit.MINUTES)).isNotBlank();
         assertThat(streaming.get(5, TimeUnit.MINUTES).aiMessage().text()).isNotBlank();
+    }
+
+    @Test
+    void concurrentChatsEachGetTheirOwnAnswer() throws Exception {
+        Map<String, String> capitals = Map.of("France", "Paris", "Japan", "Tokyo", "Italy", "Rome", "Egypt", "Cairo");
+        Map<String, CompletableFuture<String>> replies = new HashMap<>();
+        for (final String country : capitals.keySet()) {
+            replies.put(country, CompletableFuture.supplyAsync(new Supplier<>() {
+                @Override
+                public String get() {
+                    return chatModel.chat("What is the capital of " + country + "? Answer in one word.");
+                }
+            }));
+        }
+        for (Map.Entry<String, String> capital : capitals.entrySet()) {
+            assertThat(replies.get(capital.getKey()).get(5, TimeUnit.MINUTES)).containsIgnoringCase(capital.getValue());
+        }
     }
 
     @Test
