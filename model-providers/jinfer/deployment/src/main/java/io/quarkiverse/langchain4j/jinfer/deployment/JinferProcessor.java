@@ -45,6 +45,7 @@ import io.quarkiverse.langchain4j.runtime.NamedConfigUtil;
 import io.quarkus.arc.deployment.BeanDiscoveryFinishedBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeansRuntimeInitBuildItem;
+import io.quarkus.arc.processor.BeanInfo;
 import io.quarkus.arc.processor.InjectionPointInfo;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -140,18 +141,24 @@ public class JinferProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void generateChatBeans(JinferRecorder recorder,
             List<SelectedChatModelProviderBuildItem> selectedChatModels,
+            BeanDiscoveryFinishedBuildItem beanDiscovery,
             BuildProducer<SyntheticBeanBuildItem> beanProducer,
             BuildProducer<JinferModelBuildItem> modelProducer) {
         for (var selected : selectedChatModels) {
-            if (PROVIDER.equals(selected.getProvider())) {
-                String configName = selected.getConfigName();
+            String configName = selected.getConfigName();
+            // the chat beans share one model, so an application's own chat model replaces all of them
+            if (PROVIDER.equals(selected.getProvider())
+                    && !hasOwnBean(beanDiscovery, CHAT_MODEL, configName)
+                    && !hasOwnBean(beanDiscovery, STREAMING_CHAT_MODEL, configName)) {
                 beanProducer.produce(chatBean(CHAT_MODEL, configName).createWith(recorder.chatModel(configName)).done());
                 beanProducer.produce(chatBean(STREAMING_CHAT_MODEL, configName)
                         .createWith(recorder.streamingChatModel(configName))
                         .done());
-                beanProducer.produce(chatBean(JinferDotNames.TOKEN_COUNT_ESTIMATOR, configName)
-                        .createWith(recorder.tokenCountEstimator(configName))
-                        .done());
+                if (!hasOwnBean(beanDiscovery, JinferDotNames.TOKEN_COUNT_ESTIMATOR, configName)) {
+                    beanProducer.produce(chatBean(JinferDotNames.TOKEN_COUNT_ESTIMATOR, configName)
+                            .createWith(recorder.tokenCountEstimator(configName))
+                            .done());
+                }
                 modelProducer.produce(new JinferModelBuildItem(ChatModel.class, configName));
             }
         }
@@ -161,11 +168,12 @@ public class JinferProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void generateEmbeddingBeans(JinferRecorder recorder,
             List<SelectedEmbeddingModelCandidateBuildItem> selectedEmbeddingModels,
+            BeanDiscoveryFinishedBuildItem beanDiscovery,
             BuildProducer<SyntheticBeanBuildItem> beanProducer,
             BuildProducer<JinferModelBuildItem> modelProducer) {
         for (var selected : selectedEmbeddingModels) {
-            if (PROVIDER.equals(selected.getProvider())) {
-                String configName = selected.getConfigName();
+            String configName = selected.getConfigName();
+            if (PROVIDER.equals(selected.getProvider()) && !hasOwnBean(beanDiscovery, EMBEDDING_MODEL, configName)) {
                 beanProducer.produce(modelBean(EMBEDDING_MODEL, configName)
                         .unremovable()
                         .addInjectionPoint(instanceOf(ClassType.create(JinferDotNames.EMBEDDING_MODEL_LISTENER)))
@@ -180,11 +188,12 @@ public class JinferProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void generateScoringBeans(JinferRecorder recorder,
             List<SelectedScoringModelProviderBuildItem> selectedScoringModels,
+            BeanDiscoveryFinishedBuildItem beanDiscovery,
             BuildProducer<SyntheticBeanBuildItem> beanProducer,
             BuildProducer<JinferModelBuildItem> modelProducer) {
         for (var selected : selectedScoringModels) {
-            if (PROVIDER.equals(selected.getProvider())) {
-                String configName = selected.getConfigName();
+            String configName = selected.getConfigName();
+            if (PROVIDER.equals(selected.getProvider()) && !hasOwnBean(beanDiscovery, SCORING_MODEL, configName)) {
                 beanProducer.produce(modelBean(SCORING_MODEL, configName)
                         .unremovable()
                         .addInjectionPoint(instanceOf(ClassType.create(JinferDotNames.SCORING_MODEL_LISTENER)))
@@ -199,11 +208,12 @@ public class JinferProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void generateDecisionBeans(JinferRecorder recorder,
             List<SelectedDecisionModelProviderBuildItem> selectedDecisionModels,
+            BeanDiscoveryFinishedBuildItem beanDiscovery,
             BuildProducer<SyntheticBeanBuildItem> beanProducer,
             BuildProducer<JinferModelBuildItem> modelProducer) {
         for (var selected : selectedDecisionModels) {
-            if (PROVIDER.equals(selected.getProvider())) {
-                String configName = selected.getConfigName();
+            String configName = selected.getConfigName();
+            if (PROVIDER.equals(selected.getProvider()) && !hasOwnBean(beanDiscovery, DECISION_MODEL, configName)) {
                 beanProducer.produce(modelBean(DECISION_MODEL, configName)
                         .unremovable()
                         .addInjectionPoint(instanceOf(ClassType.create(DotNames.DECISION_MODEL_LISTENER)))
@@ -220,11 +230,12 @@ public class JinferProcessor {
     @Record(ExecutionTime.RUNTIME_INIT)
     void generateTranscriptionBeans(JinferRecorder recorder,
             List<SelectedAudioTranscriptionModelProviderBuildItem> selectedTranscriptionModels,
+            BeanDiscoveryFinishedBuildItem beanDiscovery,
             BuildProducer<SyntheticBeanBuildItem> beanProducer,
             BuildProducer<JinferModelBuildItem> modelProducer) {
         for (var selected : selectedTranscriptionModels) {
-            if (PROVIDER.equals(selected.getProvider())) {
-                String configName = selected.getConfigName();
+            String configName = selected.getConfigName();
+            if (PROVIDER.equals(selected.getProvider()) && !hasOwnBean(beanDiscovery, AUDIO_TRANSCRIPTION_MODEL, configName)) {
                 beanProducer.produce(modelBean(AUDIO_TRANSCRIPTION_MODEL, configName)
                         .unremovable()
                         .supplier(recorder.transcriptionModel(configName))
@@ -255,7 +266,7 @@ public class JinferProcessor {
                 continue;
             }
             String name = determineModelName(ip);
-            if (name != null) {
+            if (name != null && !hasOwnBean(beanDiscovery, JinferDotNames.TEXT_TO_SPEECH_MODEL, name)) {
                 ttsNames.add(name);
             }
         }
@@ -286,6 +297,26 @@ public class JinferProcessor {
             bean.addQualifier(AnnotationInstance.builder(ModelName.class).add("value", configName).build());
         }
         return bean;
+    }
+
+    /**
+     * Whether the application declares its own bean of this type for this config name. jinfer then
+     * produces none, so its startup checks cannot fail for a model the application does not use.
+     */
+    private static boolean hasOwnBean(BeanDiscoveryFinishedBuildItem beanDiscovery, DotName type, String configName) {
+        for (BeanInfo bean : beanDiscovery.beanStream().withBeanType(type)) {
+            if (NamedConfigUtil.isDefault(configName)) {
+                if (bean.hasDefaultQualifiers()) {
+                    return true;
+                }
+            } else {
+                AnnotationInstance modelName = bean.getQualifier(LangChain4jDotNames.MODEL_NAME).orElse(null);
+                if (modelName != null && configName.equals(modelName.value().asString())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static Type customizers(DotName builder) {
