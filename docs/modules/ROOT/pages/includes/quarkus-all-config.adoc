@@ -15430,6 +15430,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++true+++`
 
+a|icon:lock[title=Fixed at build time] [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-enabled]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-enabled[`+++quarkus.langchain4j.jinfer.decision-model.enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether the decision model should be enabled.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
 a|icon:lock[title=Fixed at build time] [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-transcription-model-enabled]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-transcription-model-enabled[`+++quarkus.langchain4j.jinfer.transcription-model.enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer.transcription-model.enabled+++[]
@@ -15974,6 +15995,90 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_SCORING_MODEL_INSTRUCTION++
 endif::add-copy-button-to-env-var[]
 --
 |string
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model[`+++quarkus.langchain4j.jinfer.decision-model.model+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.model+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model-path[`+++quarkus.langchain4j.jinfer.decision-model.model-path+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.model-path+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL_PATH+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL_PATH+++`
+endif::add-copy-button-to-env-var[]
+--
+|path
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-context-capacity[`+++quarkus.langchain4j.jinfer.decision-model.context-capacity+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.context-capacity+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_CONTEXT_CAPACITY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_CONTEXT_CAPACITY+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-companions-capability[`+++quarkus.langchain4j.jinfer.decision-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-transcription-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-transcription-model-model[`+++quarkus.langchain4j.jinfer.transcription-model.model+++`]##
@@ -16629,6 +16734,90 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__SCORING_MODEL_
 endif::add-copy-button-to-env-var[]
 --
 |string
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model[`+++quarkus.langchain4j.jinfer."model-name".decision-model.model+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".decision-model.model+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".decision-model.model-path+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".decision-model.model-path+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL_PATH+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL_PATH+++`
+endif::add-copy-button-to-env-var[]
+--
+|path
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-context-capacity[`+++quarkus.langchain4j.jinfer."model-name".decision-model.context-capacity+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".decision-model.context-capacity+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The context capacity in tokens. `0` is the smaller of 4096 and the model's maximum, `-1` is the model's maximum.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_CONTEXT_CAPACITY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_CONTEXT_CAPACITY+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-companions-capability]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-companions-capability[`+++quarkus.langchain4j.jinfer."model-name".decision-model.companions."capability"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".decision-model.companions."capability"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Companion files by capability, each a GGUF reference or a local path, such as `media` for a vision or audio projector (mmproj). A capability the model does not have fails when the model loads.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_COMPANIONS__CAPABILITY_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_COMPANIONS__CAPABILITY_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-transcription-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-transcription-model-model[`+++quarkus.langchain4j.jinfer."model-name".transcription-model.model+++`]##

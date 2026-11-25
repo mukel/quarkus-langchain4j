@@ -5,7 +5,7 @@ include::./includes/attributes.adoc[]
 include::./includes/customization.adoc[]
 
 https://qxotic.ai/[Qxotic] provides *jinfer*, an engine that runs Large Language Models (LLMs) *locally and purely in Java*, embedded in your Quarkus application.
-This extension integrates jinfer's LangChain4j support, exposing chat, streaming chat, embedding, scoring (rerank), audio transcription, and text-to-speech models backed by in-process GGUF inference.
+This extension integrates jinfer's LangChain4j support, exposing chat, streaming chat, embedding, scoring (rerank), decision, audio transcription, and text-to-speech models backed by in-process GGUF inference.
 
 == Quick start
 
@@ -126,5 +126,20 @@ quarkus.langchain4j.jinfer.chat-model.companions.media=LiquidAI/LFM2.5-VL-450M-G
 quarkus.langchain4j.jinfer.tts-model.model=simonfxr/kokoro.cpp-GGUF:Q8_0
 quarkus.langchain4j.jinfer.tts-model.companions.voice=simonfxr/kokoro.cpp-GGUF/voices/kokoro-voice-af_heart.gguf
 ----
+
+[#_decision_models]
+=== Decision models
+
+jinfer provides a `DecisionModel` for xref:decision-services.adoc[Decision Services], which is experimental in LangChain4j.
+It runs LFM3-based Liquid d1 checkpoints, such as https://huggingface.co/LiquidAI/d1-2B-GGUF[d1-2B], and Qwen 3.5-based d3 checkpoints.
+Language models and LFM2-based d1 checkpoints, such as `d1-3B`, are rejected when the model is created.
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.decision-model.model=LiquidAI/d1-2B-GGUF:Q8_0
+----
+
+The model name is the GGUF file name, for example `d1-2B-Q8_0.gguf`: use it as the `threshold-by-model` key.
+A decision model answers one request at a time.
 
 include::includes/quarkus-langchain4j-jinfer.adoc[leveloffset=+1, opts=optional]

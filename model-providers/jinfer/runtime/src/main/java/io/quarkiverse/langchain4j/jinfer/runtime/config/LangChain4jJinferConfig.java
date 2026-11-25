@@ -66,6 +66,11 @@ public interface LangChain4jJinferConfig {
         ScoringModelConfig scoringModel();
 
         /**
+         * Decision model related settings.
+         */
+        DecisionModelConfig decisionModel();
+
+        /**
          * Audio transcription model related settings.
          */
         TranscriptionModelConfig transcriptionModel();

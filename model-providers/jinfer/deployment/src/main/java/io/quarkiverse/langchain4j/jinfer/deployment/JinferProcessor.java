@@ -2,6 +2,7 @@ package io.quarkiverse.langchain4j.jinfer.deployment;
 
 import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.AUDIO_TRANSCRIPTION_MODEL;
 import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.CHAT_MODEL;
+import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.DECISION_MODEL;
 import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.EMBEDDING_MODEL;
 import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.SCORING_MODEL;
 import static io.quarkiverse.langchain4j.deployment.LangChain4jDotNames.STREAMING_CHAT_MODEL;
@@ -24,10 +25,12 @@ import io.quarkiverse.langchain4j.ModelName;
 import io.quarkiverse.langchain4j.deployment.DotNames;
 import io.quarkiverse.langchain4j.deployment.items.AudioTranscriptionModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.ChatModelProviderCandidateBuildItem;
+import io.quarkiverse.langchain4j.deployment.items.DecisionModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.EmbeddingModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.ScoringModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.SelectedAudioTranscriptionModelProviderBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.SelectedChatModelProviderBuildItem;
+import io.quarkiverse.langchain4j.deployment.items.SelectedDecisionModelProviderBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.SelectedEmbeddingModelCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.SelectedScoringModelProviderBuildItem;
 import io.quarkiverse.langchain4j.jinfer.runtime.JinferRecorder;
@@ -87,6 +90,7 @@ public class JinferProcessor {
     public void providerCandidates(BuildProducer<ChatModelProviderCandidateBuildItem> chatProducer,
             BuildProducer<EmbeddingModelProviderCandidateBuildItem> embeddingProducer,
             BuildProducer<ScoringModelProviderCandidateBuildItem> scoringProducer,
+            BuildProducer<DecisionModelProviderCandidateBuildItem> decisionProducer,
             BuildProducer<AudioTranscriptionModelProviderCandidateBuildItem> transcriptionProducer,
             LangChain4jJinferBuildConfig config) {
         if (config.chatModel().enabled().orElse(true)) {
@@ -97,6 +101,9 @@ public class JinferProcessor {
         }
         if (config.scoringModel().enabled().orElse(true)) {
             scoringProducer.produce(new ScoringModelProviderCandidateBuildItem(PROVIDER));
+        }
+        if (config.decisionModel().enabled().orElse(true)) {
+            decisionProducer.produce(new DecisionModelProviderCandidateBuildItem(PROVIDER));
         }
         if (config.transcriptionModel().enabled().orElse(true)) {
             transcriptionProducer.produce(new AudioTranscriptionModelProviderCandidateBuildItem(PROVIDER));
@@ -150,6 +157,25 @@ public class JinferProcessor {
                 beanProducer.produce(modelBean(SCORING_MODEL, selected.getConfigName())
                         .unremovable()
                         .supplier(recorder.scoringModel(selected.getConfigName()))
+                        .done());
+            }
+        }
+    }
+
+    @BuildStep
+    @Record(ExecutionTime.RUNTIME_INIT)
+    void generateDecisionBeans(JinferRecorder recorder,
+            List<SelectedDecisionModelProviderBuildItem> selectedDecisionModels,
+            BuildProducer<SyntheticBeanBuildItem> beanProducer) {
+        for (var selected : selectedDecisionModels) {
+            if (PROVIDER.equals(selected.getProvider())) {
+                String configName = selected.getConfigName();
+                beanProducer.produce(modelBean(DECISION_MODEL, configName)
+                        .unremovable()
+                        .addInjectionPoint(instanceOf(ClassType.create(DotNames.DECISION_MODEL_LISTENER)))
+                        .addInjectionPoint(customizers(JinferDotNames.DECISION_MODEL_BUILDER),
+                                AnnotationInstance.builder(Any.class).build())
+                        .createWith(recorder.decisionModel(configName))
                         .done());
             }
         }

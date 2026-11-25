@@ -207,6 +207,7 @@ Invoking a decision agent directly works, but logs a warning.
 == Related Guides
 
 [.lead]
+* xref:jinfer.adoc#_decision_models[Jinfer Decision Models]
 * xref:openai-decision-model.adoc[OpenAI Decision Models]
 * xref:typesafe-decision-model.adoc[TypeSafe Decision Models]
 * xref:agentic.adoc#_decision_agents[Decision Agents]

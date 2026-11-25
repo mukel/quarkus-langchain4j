@@ -25,6 +25,11 @@ public interface LangChain4jJinferBuildConfig {
     ScoringModelBuildConfig scoringModel();
 
     /**
+     * Decision model related settings.
+     */
+    DecisionModelBuildConfig decisionModel();
+
+    /**
      * Audio transcription model related settings.
      */
     TranscriptionModelBuildConfig transcriptionModel();

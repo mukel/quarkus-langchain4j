@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -14,6 +15,7 @@ import jakarta.enterprise.util.TypeLiteral;
 
 import com.qxotic.jinfer.hub.ModelStore;
 import com.qxotic.jinfer.langchain4j.JinferChatModel;
+import com.qxotic.jinfer.langchain4j.JinferDecisionModel;
 import com.qxotic.jinfer.langchain4j.JinferEmbeddingModel;
 import com.qxotic.jinfer.langchain4j.JinferScoringModel;
 import com.qxotic.jinfer.langchain4j.JinferSpeechModel;
@@ -21,6 +23,7 @@ import com.qxotic.jinfer.langchain4j.JinferTranscriptionModel;
 
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.model.ModelDisabledException;
+import dev.langchain4j.model.ModelProvider;
 import dev.langchain4j.model.audio.AudioTranscriptionModel;
 import dev.langchain4j.model.audio.AudioTranscriptionRequest;
 import dev.langchain4j.model.audio.AudioTranscriptionResponse;
@@ -32,12 +35,18 @@ import dev.langchain4j.model.chat.DisabledChatModel;
 import dev.langchain4j.model.chat.DisabledStreamingChatModel;
 import dev.langchain4j.model.chat.StreamingChatModel;
 import dev.langchain4j.model.chat.listener.ChatModelListener;
+import dev.langchain4j.model.decision.DecisionModel;
+import dev.langchain4j.model.decision.listener.DecisionModelListener;
+import dev.langchain4j.model.decision.request.DecisionRequest;
+import dev.langchain4j.model.decision.request.DecisionRequestParameters;
+import dev.langchain4j.model.decision.response.DecisionResponse;
 import dev.langchain4j.model.embedding.DisabledEmbeddingModel;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
 import io.quarkiverse.langchain4j.ModelBuilderCustomizer;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.ChatModelConfig;
+import io.quarkiverse.langchain4j.jinfer.runtime.config.DecisionModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.EmbeddingModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.LangChain4jJinferConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.ScoringModelConfig;
@@ -51,6 +60,7 @@ import io.quarkus.runtime.ShutdownContext;
 import io.quarkus.runtime.annotations.Recorder;
 import io.quarkus.runtime.configuration.ConfigurationException;
 import io.smallrye.config.ConfigValidationException;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 
 @Recorder
 public class JinferRecorder {
@@ -58,6 +68,10 @@ public class JinferRecorder {
     private static final TypeLiteral<Instance<ChatModelListener>> CHAT_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
     };
     private static final TypeLiteral<Instance<ModelBuilderCustomizer<JinferChatModel.Builder>>> CHAT_MODEL_CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+    private static final TypeLiteral<Instance<DecisionModelListener>> DECISION_MODEL_LISTENER_TYPE_LITERAL = new TypeLiteral<>() {
+    };
+    private static final TypeLiteral<Instance<ModelBuilderCustomizer<JinferDecisionModel.Builder>>> DECISION_MODEL_CUSTOMIZER_TYPE_LITERAL = new TypeLiteral<>() {
     };
 
     // Not the JinferModels monitor: a download can take minutes, and shutdown must not wait for it.
@@ -187,6 +201,51 @@ public class JinferRecorder {
                 JinferScoringModel model = builder.build();
                 JinferModels.registerForClose(model);
                 return model;
+            }
+        };
+    }
+
+    public Function<SyntheticCreationalContext<DecisionModel>, DecisionModel> decisionModel(final String configName) {
+        if (!correspondingConfig(configName).enableIntegration()) {
+            return new Function<>() {
+                @Override
+                public DecisionModel apply(SyntheticCreationalContext<DecisionModel> context) {
+                    return new DisabledDecisionModel();
+                }
+            };
+        }
+        DecisionModelConfig decision = correspondingConfig(configName).decisionModel();
+        validate(configName, "decision-model", decision.modelPath(), decision.model());
+        return new Function<>() {
+            @Override
+            public DecisionModel apply(SyntheticCreationalContext<DecisionModel> context) {
+                JinferDecisionModel.Builder builder = JinferDecisionModel.builder();
+                if (decision.modelPath().isPresent()) {
+                    builder.modelPath(decision.modelPath().get());
+                } else {
+                    builder.model(decision.model().get());
+                }
+                if (decision.contextCapacity().isPresent()) {
+                    builder.contextCapacity(decision.contextCapacity().getAsInt());
+                }
+                for (Map.Entry<String, String> companion : decision.companions().entrySet()) {
+                    if (ModelStore.isRef(companion.getValue())) {
+                        builder.companion(companion.getKey(), companion.getValue());
+                    } else {
+                        builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
+                    }
+                }
+                List<DecisionModelListener> listeners = new ArrayList<>();
+                for (DecisionModelListener listener : context.getInjectedReference(DECISION_MODEL_LISTENER_TYPE_LITERAL)) {
+                    listeners.add(listener);
+                }
+                builder.listeners(listeners);
+                ModelBuilderCustomizer.applyCustomizers(
+                        context.getInjectedReference(DECISION_MODEL_CUSTOMIZER_TYPE_LITERAL, Any.Literal.INSTANCE),
+                        builder, configName);
+                JinferDecisionModel model = builder.build();
+                JinferModels.registerForClose(model);
+                return new WorkerPoolDecisionModel(model);
             }
         };
     }
@@ -359,6 +418,61 @@ public class JinferRecorder {
         @Override
         public Response<List<Double>> scoreAll(List<TextSegment> segments, String query) {
             throw new ModelDisabledException("ScoringModel is disabled");
+        }
+    }
+
+    private static final class DisabledDecisionModel implements DecisionModel {
+        @Override
+        public DecisionResponse doDecide(DecisionRequest request) {
+            throw disabled();
+        }
+
+        @Override
+        public CompletableFuture<DecisionResponse> doDecideAsync(DecisionRequest request) {
+            return CompletableFuture.failedFuture(disabled());
+        }
+
+        private static ModelDisabledException disabled() {
+            return new ModelDisabledException("DecisionModel is disabled");
+        }
+    }
+
+    // shortcut: jinfer 0.4.0 has no doDecideAsync, remove once it does
+    private static final class WorkerPoolDecisionModel implements DecisionModel {
+        private final JinferDecisionModel delegate;
+
+        WorkerPoolDecisionModel(JinferDecisionModel delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public DecisionResponse doDecide(DecisionRequest request) {
+            return delegate.doDecide(request);
+        }
+
+        @Override
+        public CompletableFuture<DecisionResponse> doDecideAsync(final DecisionRequest request) {
+            return CompletableFuture.supplyAsync(new Supplier<>() {
+                @Override
+                public DecisionResponse get() {
+                    return delegate.doDecide(request);
+                }
+            }, Infrastructure.getDefaultWorkerPool());
+        }
+
+        @Override
+        public DecisionRequestParameters defaultRequestParameters() {
+            return delegate.defaultRequestParameters();
+        }
+
+        @Override
+        public List<DecisionModelListener> listeners() {
+            return delegate.listeners();
+        }
+
+        @Override
+        public ModelProvider provider() {
+            return delegate.provider();
         }
     }
 
