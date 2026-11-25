@@ -9,16 +9,13 @@ import dev.langchain4j.model.TokenCountEstimator;
 import dev.langchain4j.model.audio.TextToSpeechModel;
 import dev.langchain4j.model.embedding.listener.EmbeddingModelListener;
 import dev.langchain4j.model.scoring.listener.ScoringModelListener;
-import io.quarkiverse.langchain4j.ModelName;
 
 /**
- * DotNames that the core framework does not expose. jinfer produces a {@link TextToSpeechModel}
- * bean itself (there is no TextToSpeech provider SPI in core), so it needs its own DotName.
+ * DotNames that the core framework does not expose.
  */
 final class JinferDotNames {
 
     static final DotName TEXT_TO_SPEECH_MODEL = DotName.createSimple(TextToSpeechModel.class);
-    static final DotName MODEL_NAME = DotName.createSimple(ModelName.class);
     static final DotName TOKEN_COUNT_ESTIMATOR = DotName.createSimple(TokenCountEstimator.class);
     static final DotName EMBEDDING_MODEL_LISTENER = DotName.createSimple(EmbeddingModelListener.class);
     static final DotName SCORING_MODEL_LISTENER = DotName.createSimple(ScoringModelListener.class);

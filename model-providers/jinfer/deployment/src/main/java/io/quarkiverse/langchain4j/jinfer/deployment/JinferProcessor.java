@@ -29,6 +29,7 @@ import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.scoring.ScoringModel;
 import io.quarkiverse.langchain4j.ModelName;
 import io.quarkiverse.langchain4j.deployment.DotNames;
+import io.quarkiverse.langchain4j.deployment.LangChain4jDotNames;
 import io.quarkiverse.langchain4j.deployment.items.AudioTranscriptionModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.ChatModelProviderCandidateBuildItem;
 import io.quarkiverse.langchain4j.deployment.items.DecisionModelProviderCandidateBuildItem;
@@ -297,7 +298,7 @@ public class JinferProcessor {
     }
 
     private static String determineModelName(InjectionPointInfo ip) {
-        AnnotationInstance modelNameInstance = ip.getRequiredQualifier(JinferDotNames.MODEL_NAME);
+        AnnotationInstance modelNameInstance = ip.getRequiredQualifier(LangChain4jDotNames.MODEL_NAME);
         if (modelNameInstance != null) {
             AnnotationValue value = modelNameInstance.value();
             if (value != null && !value.asString().isEmpty()) {
