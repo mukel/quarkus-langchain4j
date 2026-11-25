@@ -183,7 +183,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -194,27 +194,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_MODEL+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-model-path[`+++quarkus.langchain4j.jinfer.chat-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.chat-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_CHAT_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-chat-model-context-capacity[`+++quarkus.langchain4j.jinfer.chat-model.context-capacity+++`]##
@@ -456,7 +435,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -467,27 +446,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_MODEL+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-model-path[`+++quarkus.langchain4j.jinfer.embedding-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.embedding-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_EMBEDDING_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-embedding-model-context-capacity[`+++quarkus.langchain4j.jinfer.embedding-model.context-capacity+++`]##
@@ -561,7 +519,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -572,27 +530,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_SCORING_MODEL_MODEL+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-model-path[`+++quarkus.langchain4j.jinfer.scoring-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.scoring-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_SCORING_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_SCORING_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-scoring-model-context-capacity[`+++quarkus.langchain4j.jinfer.scoring-model.context-capacity+++`]##
@@ -645,7 +582,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -656,27 +593,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-model-path[`+++quarkus.langchain4j.jinfer.decision-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.decision-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_DECISION_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-decision-model-context-capacity[`+++quarkus.langchain4j.jinfer.decision-model.context-capacity+++`]##
@@ -729,7 +645,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -742,27 +658,6 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-audio-transcription-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-audio-transcription-model-model-path[`+++quarkus.langchain4j.jinfer.audio-transcription-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.audio-transcription-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_AUDIO_TRANSCRIPTION_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_AUDIO_TRANSCRIPTION_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
-|
-
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-model[`+++quarkus.langchain4j.jinfer.tts-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer.tts-model.model+++[]
@@ -771,7 +666,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -782,27 +677,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_TTS_MODEL_MODEL+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-model-path[`+++quarkus.langchain4j.jinfer.tts-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer.tts-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_TTS_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_TTS_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-speed]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-tts-model-speed[`+++quarkus.langchain4j.jinfer.tts-model.speed+++`]##
@@ -922,7 +796,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -933,27 +807,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_MOD
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".chat-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".chat-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__CHAT_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-chat-model-context-capacity[`+++quarkus.langchain4j.jinfer."model-name".chat-model.context-capacity+++`]##
@@ -1195,7 +1048,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1206,27 +1059,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODE
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".embedding-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".embedding-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__EMBEDDING_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-embedding-model-context-capacity[`+++quarkus.langchain4j.jinfer."model-name".embedding-model.context-capacity+++`]##
@@ -1300,7 +1132,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1311,27 +1143,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__SCORING_MODEL_
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".scoring-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".scoring-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__SCORING_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__SCORING_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-scoring-model-context-capacity[`+++quarkus.langchain4j.jinfer."model-name".scoring-model.context-capacity+++`]##
@@ -1384,7 +1195,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference, e.g. `owner/repo:Q8_0`. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1395,27 +1206,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".decision-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".decision-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__DECISION_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-context-capacity]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-decision-model-context-capacity[`+++quarkus.langchain4j.jinfer."model-name".decision-model.context-capacity+++`]##
@@ -1468,7 +1258,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1481,27 +1271,6 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-audio-transcription-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-audio-transcription-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".audio-transcription-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".audio-transcription-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__AUDIO_TRANSCRIPTION_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__AUDIO_TRANSCRIPTION_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
-|
-
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-model]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-model[`+++quarkus.langchain4j.jinfer."model-name".tts-model.model+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".tts-model.model+++[]
@@ -1510,7 +1279,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The HuggingFace/ModelScope GGUF model reference. Required unless `model-path()` is set.
+The model to run: a HuggingFace/ModelScope GGUF reference, e.g. `owner/repo:Q8_0`, or a path to a local GGUF file, such as `./models/model.gguf`, which is never downloaded.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1521,27 +1290,6 @@ Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_MODE
 endif::add-copy-button-to-env-var[]
 --
 |string
-|
-
-a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-model-path]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-model-path[`+++quarkus.langchain4j.jinfer."model-name".tts-model.model-path+++`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".tts-model.model-path+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-Path to a local GGUF file. Takes precedence over `model()`; when set, no download occurs.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_MODEL_PATH+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__TTS_MODEL_MODEL_PATH+++`
-endif::add-copy-button-to-env-var[]
---
-|path
 |
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-speed]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-tts-model-speed[`+++quarkus.langchain4j.jinfer."model-name".tts-model.speed+++`]##

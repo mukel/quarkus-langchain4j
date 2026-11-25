@@ -7,10 +7,6 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
@@ -27,7 +23,6 @@ import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
-import com.qxotic.jinfer.hub.ModelStore;
 import com.qxotic.jinfer.langchain4j.JinferChatModel;
 
 import dev.langchain4j.agent.tool.Tool;
@@ -99,8 +94,6 @@ class JinferRealModelsIT {
                     Map.entry("quarkus.langchain4j.jinfer.timed.timeout", "1ms"),
                     Map.entry("quarkus.langchain4j.jinfer.race.chat-model.model", CHAT_MODEL),
                     Map.entry("quarkus.langchain4j.jinfer.race.chat-model.max-output-tokens", "8"),
-                    Map.entry("quarkus.langchain4j.jinfer.local.tts-model.model", "simonfxr/kokoro.cpp-GGUF:Q8_0"),
-                    Map.entry("quarkus.langchain4j.jinfer.local.tts-model.companions.voice", localVoice()),
                     Map.entry("quarkus.langchain4j.jinfer.embedding-model.model", "unsloth/embeddinggemma-2-GGUF:Q8_0"),
                     Map.entry("quarkus.langchain4j.jinfer.short.embedding-model.model",
                             "unsloth/embeddinggemma-2-GGUF:Q8_0"),
@@ -122,18 +115,6 @@ class JinferRealModelsIT {
                     Map.entry("quarkus.langchain4j.jinfer.vision.decision-model.model", "LiquidAI/d1-2B-GGUF:Q8_0"),
                     Map.entry("quarkus.langchain4j.jinfer.vision.decision-model.companions.media",
                             "LiquidAI/d1-2B-GGUF/mmproj-d1-2B-Q8_0.gguf"));
-        }
-    }
-
-    // Links the cached voice to a relative path, to load it as a local file.
-    private static String localVoice() {
-        try {
-            Path link = Path.of("./target/kokoro-voice.gguf");
-            Files.deleteIfExists(link);
-            Files.createSymbolicLink(link, ModelStore.standard().resolve(VOICE).toAbsolutePath());
-            return link.toString();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
@@ -285,10 +266,6 @@ class JinferRealModelsIT {
     @Inject
     @ModelName("race")
     StreamingChatModel raceStreamingChatModel;
-
-    @Inject
-    @ModelName("local")
-    TextToSpeechModel localVoiceTtsModel;
 
     @Inject
     TextToSpeechModel ttsModel;
@@ -460,12 +437,6 @@ class JinferRealModelsIT {
     @Test
     void speechRoundTripsThroughTranscription() {
         Audio audio = ttsModel.synthesize("The quick brown fox jumps over the lazy dog.").audio();
-        assertThat(transcriptionModel.transcribeToText(audio)).containsIgnoringCase("fox");
-    }
-
-    @Test
-    void speechLoadsAVoiceFromARelativePath() {
-        Audio audio = localVoiceTtsModel.synthesize("The quick brown fox jumps over the lazy dog.").audio();
         assertThat(transcriptionModel.transcribeToText(audio)).containsIgnoringCase("fox");
     }
 

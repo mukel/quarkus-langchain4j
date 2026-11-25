@@ -1,6 +1,5 @@
 package io.quarkiverse.langchain4j.jinfer.runtime.config;
 
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -10,15 +9,10 @@ import io.quarkus.runtime.annotations.ConfigGroup;
 public interface ScoringModelConfig {
 
     /**
-     * The HuggingFace/ModelScope GGUF model reference, e.g. {@code owner/repo:Q8_0}.
-     * Required unless {@link #modelPath()} is set.
+     * The model to run: a HuggingFace/ModelScope GGUF reference, e.g. {@code owner/repo:Q8_0}, or a path to a local
+     * GGUF file, such as {@code ./models/model.gguf}, which is never downloaded.
      */
     Optional<String> model();
-
-    /**
-     * Path to a local GGUF file. Takes precedence over {@link #model()}; when set, no download occurs.
-     */
-    Optional<Path> modelPath();
 
     /**
      * The context capacity in tokens. {@code 0} is the smaller of 4096 and the model's maximum, {@code -1} is the

@@ -24,12 +24,13 @@ public class JinferMissingModelTest {
             .assertException(new Consumer<Throwable>() {
                 @Override
                 public void accept(Throwable failure) {
-                    assertThat(failure).hasMessageContaining("quarkus.langchain4j.jinfer.chat-model.model");
+                    assertThat(failure).hasMessageContaining(
+                            "quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0");
                 }
             });
 
     @Test
-    void startupFailsAndNamesTheProperty() {
+    void startupFailsWithAConfigLineToPaste() {
         fail("The application should not start without a model");
     }
 

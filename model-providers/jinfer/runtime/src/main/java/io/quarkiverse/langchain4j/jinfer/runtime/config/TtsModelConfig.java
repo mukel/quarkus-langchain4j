@@ -1,6 +1,5 @@
 package io.quarkiverse.langchain4j.jinfer.runtime.config;
 
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -13,15 +12,10 @@ import io.quarkus.runtime.annotations.ConfigGroup;
 public interface TtsModelConfig {
 
     /**
-     * The HuggingFace/ModelScope GGUF model reference.
-     * Required unless {@link #modelPath()} is set.
+     * The model to run: a HuggingFace/ModelScope GGUF reference, e.g. {@code owner/repo:Q8_0}, or a path to a local
+     * GGUF file, such as {@code ./models/model.gguf}, which is never downloaded.
      */
     Optional<String> model();
-
-    /**
-     * Path to a local GGUF file. Takes precedence over {@link #model()}; when set, no download occurs.
-     */
-    Optional<Path> modelPath();
 
     /**
      * The speech speed multiplier (must be greater than {@code 0}).

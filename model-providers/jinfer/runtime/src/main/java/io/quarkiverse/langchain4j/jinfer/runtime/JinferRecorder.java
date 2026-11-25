@@ -94,7 +94,8 @@ public class JinferRecorder {
     }
 
     public Function<SyntheticCreationalContext<ChatModel>, ChatModel> chatModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+        if (!enabled(configName, "chat-model", chat.model())) {
             return new Function<>() {
                 @Override
                 public ChatModel apply(SyntheticCreationalContext<ChatModel> context) {
@@ -102,8 +103,6 @@ public class JinferRecorder {
                 }
             };
         }
-        ChatModelConfig chat = correspondingConfig(configName).chatModel();
-        validate(configName, "chat-model", chat.modelPath(), chat.model());
         return new Function<>() {
             @Override
             public ChatModel apply(SyntheticCreationalContext<ChatModel> context) {
@@ -114,7 +113,8 @@ public class JinferRecorder {
 
     public Function<SyntheticCreationalContext<StreamingChatModel>, StreamingChatModel> streamingChatModel(
             final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        ChatModelConfig chat = correspondingConfig(configName).chatModel();
+        if (!enabled(configName, "chat-model", chat.model())) {
             return new Function<>() {
                 @Override
                 public StreamingChatModel apply(SyntheticCreationalContext<StreamingChatModel> context) {
@@ -122,8 +122,6 @@ public class JinferRecorder {
                 }
             };
         }
-        ChatModelConfig chat = correspondingConfig(configName).chatModel();
-        validate(configName, "chat-model", chat.modelPath(), chat.model());
         return new Function<>() {
             @Override
             public StreamingChatModel apply(SyntheticCreationalContext<StreamingChatModel> context) {
@@ -133,7 +131,8 @@ public class JinferRecorder {
     }
 
     public Supplier<EmbeddingModel> embeddingModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        EmbeddingModelConfig emb = correspondingConfig(configName).embeddingModel();
+        if (!enabled(configName, "embedding-model", emb.model())) {
             return new Supplier<EmbeddingModel>() {
                 @Override
                 public EmbeddingModel get() {
@@ -141,22 +140,21 @@ public class JinferRecorder {
                 }
             };
         }
-        EmbeddingModelConfig emb = correspondingConfig(configName).embeddingModel();
-        validate(configName, "embedding-model", emb.modelPath(), emb.model());
         return new Supplier<EmbeddingModel>() {
             @Override
             public EmbeddingModel get() {
                 JinferEmbeddingModel.Builder builder = JinferEmbeddingModel.builder();
-                if (emb.modelPath().isPresent()) {
-                    builder.modelPath(emb.modelPath().get());
+                String modelRef = emb.model().get();
+                if (isRemote(modelRef)) {
+                    builder.model(modelRef);
                 } else {
-                    builder.model(emb.model().get());
+                    builder.modelPath(Path.of(modelRef));
                 }
                 if (emb.contextCapacity().isPresent()) {
                     builder.contextCapacity(emb.contextCapacity().getAsInt());
                 }
                 for (Map.Entry<String, String> companion : emb.companions().entrySet()) {
-                    if (ModelStore.isRef(companion.getValue())) {
+                    if (isRemote(companion.getValue())) {
                         builder.companion(companion.getKey(), companion.getValue());
                     } else {
                         builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
@@ -173,7 +171,8 @@ public class JinferRecorder {
     }
 
     public Supplier<ScoringModel> scoringModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        ScoringModelConfig scoring = correspondingConfig(configName).scoringModel();
+        if (!enabled(configName, "scoring-model", scoring.model())) {
             return new Supplier<ScoringModel>() {
                 @Override
                 public ScoringModel get() {
@@ -181,16 +180,15 @@ public class JinferRecorder {
                 }
             };
         }
-        ScoringModelConfig scoring = correspondingConfig(configName).scoringModel();
-        validate(configName, "scoring-model", scoring.modelPath(), scoring.model());
         return new Supplier<ScoringModel>() {
             @Override
             public ScoringModel get() {
                 JinferScoringModel.Builder builder = JinferScoringModel.builder();
-                if (scoring.modelPath().isPresent()) {
-                    builder.modelPath(scoring.modelPath().get());
+                String modelRef = scoring.model().get();
+                if (isRemote(modelRef)) {
+                    builder.model(modelRef);
                 } else {
-                    builder.model(scoring.model().get());
+                    builder.modelPath(Path.of(modelRef));
                 }
                 if (scoring.contextCapacity().isPresent()) {
                     builder.contextCapacity(scoring.contextCapacity().getAsInt());
@@ -206,7 +204,8 @@ public class JinferRecorder {
     }
 
     public Function<SyntheticCreationalContext<DecisionModel>, DecisionModel> decisionModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        DecisionModelConfig decision = correspondingConfig(configName).decisionModel();
+        if (!enabled(configName, "decision-model", decision.model())) {
             return new Function<>() {
                 @Override
                 public DecisionModel apply(SyntheticCreationalContext<DecisionModel> context) {
@@ -214,22 +213,21 @@ public class JinferRecorder {
                 }
             };
         }
-        DecisionModelConfig decision = correspondingConfig(configName).decisionModel();
-        validate(configName, "decision-model", decision.modelPath(), decision.model());
         return new Function<>() {
             @Override
             public DecisionModel apply(SyntheticCreationalContext<DecisionModel> context) {
                 JinferDecisionModel.Builder builder = JinferDecisionModel.builder();
-                if (decision.modelPath().isPresent()) {
-                    builder.modelPath(decision.modelPath().get());
+                String modelRef = decision.model().get();
+                if (isRemote(modelRef)) {
+                    builder.model(modelRef);
                 } else {
-                    builder.model(decision.model().get());
+                    builder.modelPath(Path.of(modelRef));
                 }
                 if (decision.contextCapacity().isPresent()) {
                     builder.contextCapacity(decision.contextCapacity().getAsInt());
                 }
                 for (Map.Entry<String, String> companion : decision.companions().entrySet()) {
-                    if (ModelStore.isRef(companion.getValue())) {
+                    if (isRemote(companion.getValue())) {
                         builder.companion(companion.getKey(), companion.getValue());
                     } else {
                         builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
@@ -251,7 +249,8 @@ public class JinferRecorder {
     }
 
     public Supplier<AudioTranscriptionModel> transcriptionModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        TranscriptionModelConfig transcription = correspondingConfig(configName).audioTranscriptionModel();
+        if (!enabled(configName, "audio-transcription-model", transcription.model())) {
             return new Supplier<AudioTranscriptionModel>() {
                 @Override
                 public AudioTranscriptionModel get() {
@@ -259,16 +258,15 @@ public class JinferRecorder {
                 }
             };
         }
-        TranscriptionModelConfig transcription = correspondingConfig(configName).audioTranscriptionModel();
-        validate(configName, "audio-transcription-model", transcription.modelPath(), transcription.model());
         return new Supplier<AudioTranscriptionModel>() {
             @Override
             public AudioTranscriptionModel get() {
                 JinferTranscriptionModel.Builder builder = JinferTranscriptionModel.builder();
-                if (transcription.modelPath().isPresent()) {
-                    builder.modelPath(transcription.modelPath().get());
+                String modelRef = transcription.model().get();
+                if (isRemote(modelRef)) {
+                    builder.model(modelRef);
                 } else {
-                    builder.model(transcription.model().get());
+                    builder.modelPath(Path.of(modelRef));
                 }
                 JinferTranscriptionModel model = builder.build();
                 JinferModels.registerForClose(model);
@@ -278,7 +276,8 @@ public class JinferRecorder {
     }
 
     public Supplier<TextToSpeechModel> ttsModel(final String configName) {
-        if (!correspondingConfig(configName).enableIntegration()) {
+        TtsModelConfig tts = correspondingConfig(configName).ttsModel();
+        if (!enabled(configName, "tts-model", tts.model())) {
             return new Supplier<TextToSpeechModel>() {
                 @Override
                 public TextToSpeechModel get() {
@@ -286,19 +285,18 @@ public class JinferRecorder {
                 }
             };
         }
-        TtsModelConfig tts = correspondingConfig(configName).ttsModel();
-        validate(configName, "tts-model", tts.modelPath(), tts.model());
         return new Supplier<TextToSpeechModel>() {
             @Override
             public TextToSpeechModel get() {
                 JinferSpeechModel.Builder builder = JinferSpeechModel.builder();
-                if (tts.modelPath().isPresent()) {
-                    builder.modelPath(tts.modelPath().get());
+                String modelRef = tts.model().get();
+                if (isRemote(modelRef)) {
+                    builder.model(modelRef);
                 } else {
-                    builder.model(tts.model().get());
+                    builder.modelPath(Path.of(modelRef));
                 }
                 for (Map.Entry<String, String> companion : tts.companions().entrySet()) {
-                    if (ModelStore.isRef(companion.getValue())) {
+                    if (isRemote(companion.getValue())) {
                         builder.companion(companion.getKey(), companion.getValue());
                     } else {
                         builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
@@ -333,10 +331,11 @@ public class JinferRecorder {
         LangChain4jJinferConfig.JinferConfig config = correspondingConfig(configName);
         ChatModelConfig chat = config.chatModel();
         JinferChatModel.Builder builder = JinferChatModel.builder();
-        if (chat.modelPath().isPresent()) {
-            builder.modelPath(chat.modelPath().get());
+        String modelRef = chat.model().get();
+        if (isRemote(modelRef)) {
+            builder.model(modelRef);
         } else {
-            builder.model(chat.model().get());
+            builder.modelPath(Path.of(modelRef));
         }
         if (chat.contextCapacity().isPresent()) {
             builder.contextCapacity(chat.contextCapacity().getAsInt());
@@ -369,7 +368,7 @@ public class JinferRecorder {
             builder.thinking(chat.thinking().get());
         }
         for (Map.Entry<String, String> companion : chat.companions().entrySet()) {
-            if (ModelStore.isRef(companion.getValue())) {
+            if (isRemote(companion.getValue())) {
                 builder.companion(companion.getKey(), companion.getValue());
             } else {
                 builder.companionPath(companion.getKey(), Path.of(companion.getValue()));
@@ -395,19 +394,48 @@ public class JinferRecorder {
                 : runtimeConfig.getValue().namedConfig().get(configName);
     }
 
-    private static void validate(String configName, String typeKey, Optional<Path> modelPath, Optional<String> model) {
-        if (modelPath.isEmpty() && model.isEmpty()) {
+    /** Whether the integration is enabled for this config, which then must name a model and have the Vector API. */
+    private boolean enabled(String configName, String typeKey, Optional<String> model) {
+        if (!correspondingConfig(configName).enableIntegration()) {
+            return false;
+        }
+        if (model.isEmpty()) {
             String key = "quarkus.langchain4j.jinfer." + qualify(configName, typeKey);
             throw new ConfigValidationException(new ConfigValidationException.Problem[] {
                     new ConfigValidationException.Problem(
-                            "Jinfer " + typeKey + " requires either '" + key + ".model' or '" + key + ".model-path' to be set")
+                            "Jinfer " + typeKey + " has no model. Add a model reference or local GGUF path to "
+                                    + "application.properties, for example:\n" + exampleConfig(key, typeKey))
             });
         }
+        requireVectorApi();
+        return true;
+    }
+
+    private static void requireVectorApi() {
         if (!ImageMode.current().isNativeImage() && ModuleLayer.boot().findModule("jdk.incubator.vector").isEmpty()) {
             throw new ConfigurationException(
                     "jinfer needs the Vector API: start the JVM with --add-modules jdk.incubator.vector, see "
                             + "https://docs.quarkiverse.io/quarkus-langchain4j/dev/jinfer.html#_vector_api");
         }
+    }
+
+    private static String exampleConfig(String key, String typeKey) {
+        return switch (typeKey) {
+            case "chat-model" -> key + ".model=LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0";
+            case "embedding-model" -> key + ".model=unsloth/embeddinggemma-2-GGUF:Q8_0";
+            case "scoring-model" -> key + ".model=mradermacher/Qwen3-Reranker-0.6B-GGUF:Q8_0";
+            case "decision-model" -> key + ".model=LiquidAI/d1-2B-GGUF:Q8_0";
+            case "audio-transcription-model" -> key + ".model=mudler/parakeet-cpp-gguf/tdt-0.6b-v3-q8_0.gguf";
+            case "tts-model" -> key + ".model=simonfxr/kokoro.cpp-GGUF:Q8_0\n"
+                    + key + ".companions.voice=simonfxr/kokoro.cpp-GGUF/voices/kokoro-voice-af_heart.gguf";
+            default -> throw new IllegalArgumentException(typeKey);
+        };
+    }
+
+    // A URL goes to model(String) too, whose error names the reference to use instead. References resolve in the
+    // builder's build(), after customizers, which may replace the model.
+    private static boolean isRemote(String model) {
+        return ModelStore.isRef(model) || model.contains("://");
     }
 
     private static String qualify(String configName, String typeKey) {

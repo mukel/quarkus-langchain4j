@@ -76,16 +76,17 @@ When a model is enabled and the flag is missing, the application fails at startu
 
 == Configuration
 
-Models are selected with a HuggingFace/ModelScope GGUF reference (for example `owner/repo:Q8_0`) via the `model` property, or a local file via `model-path`:
+Set `model` to a HuggingFace/ModelScope GGUF reference (for example `owner/repo:Q8_0`) or a path to a local GGUF file, which is never downloaded.
+Start a relative path with `./`, so it is never read as a reference; it resolves against the working directory:
 
 [source,properties]
 ----
 quarkus.langchain4j.jinfer.chat-model.model=LiquidAI/LFM2.5-1.2B-Instruct-GGUF:Q8_0
-quarkus.langchain4j.jinfer.embedding-model.model=unsloth/embeddinggemma-2-GGUF:Q8_0
+quarkus.langchain4j.jinfer.embedding-model.model=./models/embeddinggemma-2-Q8_0.gguf
 ----
 
 Models, often several GB, are downloaded by jinfer into its own resumable, sha256-verified cache on first use. Set the `JINFER_OFFLINE=1` environment variable to forbid network access.
-An injected model with no `model` or `model-path` fails at startup and names the property.
+An injected model with no `model` fails at startup with a configuration line you can paste, as does a missing Vector API flag.
 A missing model, gated repository or offline miss fails on first use, with a `ModelNotFoundException` naming the reference.
 
 The native CPU kernels are unpacked once into the user cache directory (`$XDG_CACHE_HOME`, or `~/.cache` on Linux) and reused by every later run.
