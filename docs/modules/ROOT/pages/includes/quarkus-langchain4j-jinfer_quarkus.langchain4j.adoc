@@ -141,7 +141,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether to enable the integration. Defaults to `true`, which means requests are made to jinfer. Set to `false` to disable all models (they will throw when used).
+Whether to enable the models. Set to `false` to disable them: they then throw when used, which is useful for tests.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -153,6 +153,27 @@ endif::add-copy-button-to-env-var[]
 --
 |boolean
 |`+++true+++`
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-load-at-startup]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-load-at-startup[`+++quarkus.langchain4j.jinfer.load-at-startup+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer.load-at-startup+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to download and load this configuration's models while the application starts, instead of on first use. A model that cannot be loaded then stops the application from starting.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER_LOAD_AT_STARTUP+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER_LOAD_AT_STARTUP+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-timeout]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-timeout[`+++quarkus.langchain4j.jinfer.timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -754,7 +775,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether to enable the integration. Defaults to `true`, which means requests are made to jinfer. Set to `false` to disable all models (they will throw when used).
+Whether to enable the models. Set to `false` to disable them: they then throw when used, which is useful for tests.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -766,6 +787,27 @@ endif::add-copy-button-to-env-var[]
 --
 |boolean
 |`+++true+++`
+
+a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-load-at-startup]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-load-at-startup[`+++quarkus.langchain4j.jinfer."model-name".load-at-startup+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langchain4j.jinfer."model-name".load-at-startup+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to download and load this configuration's models while the application starts, instead of on first use. A model that cannot be loaded then stops the application from starting.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__LOAD_AT_STARTUP+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGCHAIN4J_JINFER__MODEL_NAME__LOAD_AT_STARTUP+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
 
 a| [[quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-timeout]] [.property-path]##link:#quarkus-langchain4j-jinfer_quarkus-langchain4j-jinfer-model-name-timeout[`+++quarkus.langchain4j.jinfer."model-name".timeout+++`]##
 ifdef::add-copy-button-to-config-props[]

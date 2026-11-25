@@ -87,12 +87,25 @@ quarkus.langchain4j.jinfer.embedding-model.model=./models/embeddinggemma-2-Q8_0.
 
 Models, often several GB, are downloaded by jinfer into its own resumable, sha256-verified cache on first use. Set the `JINFER_OFFLINE=1` environment variable to forbid network access.
 An injected model with no `model` fails at startup with a configuration line you can paste, as does a missing Vector API flag.
-A missing model, gated repository or offline miss fails on first use, with a `ModelNotFoundException` naming the reference.
+A missing model, gated repository or offline miss fails when the model loads, with a `ModelNotFoundException` naming the reference.
 
 The native CPU kernels are unpacked once into the user cache directory (`$XDG_CACHE_HOME`, or `~/.cache` on Linux) and reused by every later run.
 In a container with a read-only or missing home directory, point `XDG_CACHE_HOME` at a writable volume; otherwise jinfer prints a warning and falls back to the slower pure-Java kernels.
 
-Set `quarkus.langchain4j.jinfer.enable-integration=false` to disable the models (they then throw when used), which is useful for tests.
+Set `quarkus.langchain4j.jinfer.enable-integration=false` to disable the models: they then throw when used, which is useful for tests.
+It applies to one configuration: a named model takes `quarkus.langchain4j.jinfer."name".enable-integration`.
+
+=== Load at startup
+
+Models load on first use by default. To download and load them before the application serves requests, and to stop startup if a model cannot be loaded:
+
+[source,properties]
+----
+quarkus.langchain4j.jinfer.load-at-startup=true
+----
+
+A named model sets `quarkus.langchain4j.jinfer."name".load-at-startup`.
+On a machine or container without the model in its cache, startup then includes the download, so give startup and liveness probes enough time.
 
 === Timeout
 

@@ -49,6 +49,7 @@ import dev.langchain4j.model.output.Response;
 import dev.langchain4j.model.scoring.ScoringModel;
 import dev.langchain4j.model.scoring.listener.ScoringModelListener;
 import io.quarkiverse.langchain4j.ModelBuilderCustomizer;
+import io.quarkiverse.langchain4j.ModelName;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.ChatModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.DecisionModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.EmbeddingModelConfig;
@@ -57,6 +58,9 @@ import io.quarkiverse.langchain4j.jinfer.runtime.config.ScoringModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.TranscriptionModelConfig;
 import io.quarkiverse.langchain4j.jinfer.runtime.config.TtsModelConfig;
 import io.quarkiverse.langchain4j.runtime.NamedConfigUtil;
+import io.quarkus.arc.Arc;
+import io.quarkus.arc.ClientProxy;
+import io.quarkus.arc.InstanceHandle;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.ImageMode;
 import io.quarkus.runtime.RuntimeValue;
@@ -99,6 +103,20 @@ public class JinferRecorder {
                 JinferModels.closeAll();
             }
         });
+    }
+
+    /** Creates the model bean now, so its download and load happen before the application serves requests. */
+    public void loadAtStartup(Class<?> type, String configName) {
+        LangChain4jJinferConfig.JinferConfig config = correspondingConfig(configName);
+        if (!config.enableIntegration() || !config.loadAtStartup()) {
+            return;
+        }
+        InstanceHandle<?> handle = NamedConfigUtil.isDefault(configName)
+                ? Arc.container().instance(type)
+                : Arc.container().instance(type, ModelName.Literal.of(configName));
+        if (handle.isAvailable()) {
+            ClientProxy.unwrap(handle.get());
+        }
     }
 
     public Function<SyntheticCreationalContext<ChatModel>, ChatModel> chatModel(final String configName) {

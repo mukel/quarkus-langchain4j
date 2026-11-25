@@ -37,11 +37,18 @@ public interface LangChain4jJinferConfig {
     interface JinferConfig {
 
         /**
-         * Whether to enable the integration. Defaults to {@code true}, which means requests are made to jinfer.
-         * Set to {@code false} to disable all models (they will throw when used).
+         * Whether to enable the models. Set to {@code false} to disable them: they then throw when used, which is
+         * useful for tests.
          */
         @WithDefault("true")
-        Boolean enableIntegration();
+        boolean enableIntegration();
+
+        /**
+         * Whether to download and load this configuration's models while the application starts, instead of on first
+         * use. A model that cannot be loaded then stops the application from starting.
+         */
+        @WithDefault("false")
+        boolean loadAtStartup();
 
         /**
          * The wall-clock deadline of each chat request, streaming included. A reply it cuts fails with
