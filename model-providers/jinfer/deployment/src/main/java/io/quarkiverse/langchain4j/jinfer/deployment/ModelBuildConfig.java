@@ -6,10 +6,10 @@ import io.quarkus.runtime.annotations.ConfigDocDefault;
 import io.quarkus.runtime.annotations.ConfigGroup;
 
 @ConfigGroup
-public interface ChatModelBuildConfig {
+public interface ModelBuildConfig {
 
     /**
-     * Whether the chat model should be enabled.
+     * Whether this model type should be enabled.
      */
     @ConfigDocDefault("true")
     Optional<Boolean> enabled();

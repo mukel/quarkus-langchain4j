@@ -12,30 +12,30 @@ public interface LangChain4jJinferBuildConfig {
     /**
      * Chat model related settings.
      */
-    ChatModelBuildConfig chatModel();
+    ModelBuildConfig chatModel();
 
     /**
      * Embedding model related settings.
      */
-    EmbeddingModelBuildConfig embeddingModel();
+    ModelBuildConfig embeddingModel();
 
     /**
      * Scoring (rerank) model related settings.
      */
-    ScoringModelBuildConfig scoringModel();
+    ModelBuildConfig scoringModel();
 
     /**
      * Decision model related settings.
      */
-    DecisionModelBuildConfig decisionModel();
+    ModelBuildConfig decisionModel();
 
     /**
      * Audio transcription model related settings.
      */
-    TranscriptionModelBuildConfig audioTranscriptionModel();
+    ModelBuildConfig audioTranscriptionModel();
 
     /**
      * Text-to-speech model related settings.
      */
-    TtsModelBuildConfig ttsModel();
+    ModelBuildConfig ttsModel();
 }

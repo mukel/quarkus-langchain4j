@@ -15375,7 +15375,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the chat model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15396,7 +15396,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the embedding model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15417,7 +15417,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the scoring (rerank) model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15438,7 +15438,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the decision model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15459,7 +15459,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the audio transcription model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -15480,7 +15480,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the text-to-speech model should be enabled.
+Whether this model type should be enabled.
 
 
 ifdef::add-copy-button-to-env-var[]
